@@ -3,7 +3,7 @@ package com.ps.app.user.domain
 // 도메인 엔티티 (집합 루트)
 data class Address(
     val id: AddressId? = null,
-    val userId: UserId,
+    val userId: Long,
     val address: FullAddress,
     val detail: AddressDetail,
     val zipcode: Zipcode,
@@ -12,7 +12,7 @@ data class Address(
 ) {
     companion object {
         fun create(
-            userId: UserId,
+            userId: Long,
             address: FullAddress,
             detail: AddressDetail,
             zipcode: Zipcode,
@@ -42,9 +42,6 @@ data class Address(
 // Value Objects
 @JvmInline
 value class AddressId(val value: Long)
-
-@JvmInline
-value class UserId(val value: Long)
 
 @JvmInline
 value class FullAddress(val value: String) {

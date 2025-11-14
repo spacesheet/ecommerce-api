@@ -1,6 +1,6 @@
 package com.ps.app.user.application.service
 
-import com.ps.app.user.application.port.`in`.UpdateUserCommand
+import com.ps.app.user.application.dto.UpdateUserCommand
 import com.ps.app.user.application.port.out.UserRepository
 import com.ps.app.user.domain.User
 import org.springframework.stereotype.Service

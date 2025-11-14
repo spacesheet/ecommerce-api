@@ -1,17 +1,16 @@
-package com.ps.app.common.constant
+package com.ps.app.coupon.domain.constant
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonValue
 
 /**
- * 할인 유형을 나타내는 enum 클래스입니다.
+ * 쿠폰의 적용 범위를 나타내는 enum 클래스입니다.
  *
- * RATE 와 AMOUNT 의 두 가지 할인 유형이 있습니다.
+ * GLOBAL, BOOK, CATEGORY 의 세 가지 범위가 있습니다.
  * 이 클래스는 Jackson 라이브러리와 통합되어 JSON 직렬화 및 역직렬화를 지원합니다.
  */
-enum class DiscountType {
-    RATE,
-    AMOUNT;
+enum class CouponScope {
+    GLOBAL, BOOK, CATEGORY;
 
     /**
      * enum 값을 소문자 문자열로 반환합니다.
@@ -25,23 +24,24 @@ enum class DiscountType {
 
     companion object {
         /**
-         * 문자열을 입력받아 해당하는 DiscountType enum 값을 반환합니다.
+         * 문자열을 입력받아 해당하는 CouponScope enum 값을 반환합니다.
          *
          * 입력된 문자열이 null 이거나 유효한 enum 값이 아닐 경우 IllegalArgumentException 을 발생시킵니다.
          *
          * @param value 입력된 문자열
-         * @return 입력된 문자열에 해당하는 DiscountType 값
+         * @return 입력된 문자열에 해당하는 CouponScope 값
          * @throws IllegalArgumentException 유효하지 않은 값이 입력된 경우
          */
         @JsonCreator
         @JvmStatic
-        fun fromString(value: String?): DiscountType {
+        fun fromString(value: String?): CouponScope {
             if (value == null) {
                 throw IllegalArgumentException("enum 값을 찾을 수 없습니다.")
             }
             return when (value.lowercase()) {
-                "rate" -> RATE
-                "amount" -> AMOUNT
+                "global" -> GLOBAL
+                "book" -> BOOK
+                "category" -> CATEGORY
                 else -> throw IllegalArgumentException("enum 값을 찾을 수 없습니다.")
             }
         }

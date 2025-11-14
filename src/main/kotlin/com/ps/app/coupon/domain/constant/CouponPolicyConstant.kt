@@ -1,4 +1,4 @@
-package com.ps.app.common.constant
+package com.ps.app.coupon.domain.constant
 
 /**
  * 쿠폰 정책과 관련된 상수를 포함하는 클래스입니다.

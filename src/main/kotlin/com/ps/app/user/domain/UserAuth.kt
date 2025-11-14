@@ -3,12 +3,12 @@ package com.ps.app.user.domain
 // 도메인 엔티티
 data class UserAuth(
     val id: UserAuthId? = null,
-    val userId: UserId,
+    val userId: Long,
     val provider: AuthProvider,
     val provideId: ProvideId
 ) {
     companion object {
-        fun create(userId: UserId, provider: AuthProvider, provideId: ProvideId): UserAuth {
+        fun create(userId: Long, provider: AuthProvider, provideId: ProvideId): UserAuth {
             return UserAuth(
                 userId = userId,
                 provider = provider,
@@ -21,9 +21,6 @@ data class UserAuth(
 // Value Objects
 @JvmInline
 value class UserAuthId(val value: Long)
-
-@JvmInline
-value class UserId(val value: Long)
 
 @JvmInline
 value class ProvideId(val value: String) {

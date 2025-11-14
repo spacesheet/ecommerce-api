@@ -1,5 +1,7 @@
 package com.ps.app.user.domain
 
+import com.ps.app.user.adapter.`in`.web.dto.UserInfoResponse
+import com.ps.app.user.domain.vo.UserInfo
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -21,8 +23,6 @@ class User(
     var modifyAt: LocalDateTime,
     val isAdmin: Boolean = false
 ) {
-    var userCoupons: MutableList<UserCoupon> = mutableListOf()
-
     /**
      * 사용자를 비활성화합니다.
      */
@@ -70,11 +70,11 @@ class User(
     fun isActive(): Boolean = status == UserStatus.ACTIVE
 
     /**
-     * 사용자 정보 DTO로 변환합니다.
+     * 사용자 정보 읽기 전용 정보로 변환합니다.
      */
-    fun toUserInfo(grade: Grade, point: Int): UserInfo {
+    fun toInfo(grade: Grade, point: Int): UserInfo {
         return UserInfo(
-            id = this.id,
+            userId = this.id,
             name = this.name,
             loginId = this.loginId,
             birthday = this.birthday,

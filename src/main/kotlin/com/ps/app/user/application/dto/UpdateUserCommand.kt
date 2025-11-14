@@ -1,4 +1,4 @@
-package com.ps.app.user.application.port.`in`
+package com.ps.app.user.application.dto
 
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank

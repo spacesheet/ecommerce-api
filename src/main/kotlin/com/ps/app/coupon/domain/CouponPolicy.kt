@@ -1,6 +1,6 @@
 package com.ps.app.coupon.domain
 
-import com.ps.app.common.constant.DiscountType
+import com.ps.app.coupon.domain.constant.DiscountType
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import org.hibernate.annotations.ColumnDefault

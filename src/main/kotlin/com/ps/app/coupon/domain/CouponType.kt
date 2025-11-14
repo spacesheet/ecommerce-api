@@ -1,6 +1,6 @@
 package com.ps.app.coupon.domain
 
-import com.ps.app.common.constant.CouponScope
+import com.ps.app.coupon.domain.constant.CouponScope
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 

@@ -1,33 +1,47 @@
 package com.ps.app.user.domain
 
-import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
+// 도메인 엔티티
+data class UserAuth(
+    val id: UserAuthId? = null,
+    val userId: UserId,
+    val provider: AuthProvider,
+    val provideId: ProvideId
+) {
+    companion object {
+        fun create(userId: UserId, provider: AuthProvider, provideId: ProvideId): UserAuth {
+            return UserAuth(
+                userId = userId,
+                provider = provider,
+                provideId = provideId
+            )
+        }
+    }
+}
 
-@Entity
-@Table(
-    name = "user_auth",
-    indexes = [
-        Index(name = "unique_provider_id", columnList = "provider, provideId", unique = true),
-        Index(name = "index_provide_Id", columnList = "provideId")
-    ]
-)
-class UserAuth(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+// Value Objects
+@JvmInline
+value class UserAuthId(val value: Long)
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    var user: User,
+@JvmInline
+value class UserId(val value: Long)
 
-    @NotNull
-    @Size(max = 20)
-    @Column(name = "provider")
-    var provider: String,
+@JvmInline
+value class ProvideId(val value: String) {
+    init {
+        require(value.isNotBlank()) { "Provider ID cannot be blank" }
+    }
+}
 
-    @NotNull
-    @Column(name = "`provide_Id`", nullable = false, columnDefinition = "binary(16)")
-    var provideId: ByteArray
-)
+enum class AuthProvider(val value: String) {
+    GOOGLE("google"),
+    KAKAO("kakao"),
+    NAVER("naver"),
+    APPLE("apple");
+
+    companion object {
+        fun from(value: String): AuthProvider {
+            return entries.find { it.value == value }
+                ?: throw IllegalArgumentException("Unknown provider: $value")
+        }
+    }
+}

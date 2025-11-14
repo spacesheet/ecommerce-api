@@ -1,84 +1,77 @@
 package com.ps.app.user.domain
 
-import com.ps.app.user.application.port.`in`.UpdateUserCommand
-import jakarta.persistence.*
-import jakarta.validation.constraints.Email
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Past
-import jakarta.validation.constraints.Size
-import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@Entity
-@Table(name = "`user`")
+/**
+ * User 도메인 모델
+ * 순수한 비즈니스 로직만 포함하며, JPA 의존성이 없음
+ */
 class User(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
-
-    @NotNull
-    @Size(min = 6, max = 50)
-    @Column(name = "login_id", unique = true)
+    val id: Long? = null,
     var loginId: String,
-
-    @NotNull
-    @Size(min = 6, max = 15)
-    @Column(name = "contact_number")
     var contactNumber: String,
-
-    @NotNull
-    @Size(max = 20)
     var name: String,
-
-    @NotNull
-    @Size(max = 255)
-    @Email
     var email: String,
-
-    @NotNull
-    @Size(max = 255)
     var password: String,
-
-    @NotNull
-    var birthday: LocalDate,
-
-    @NotNull
-    @Column(name = "created_at")
-    var createAt: LocalDateTime,
-
-    @Column(name = "last_login_at")
+    val birthday: LocalDate,
+    val createAt: LocalDateTime,
     var lastLoginAt: LocalDateTime? = null,
-
-    @NotNull
-    @Enumerated(value = EnumType.STRING)
     var status: UserStatus,
-
-    @NotNull
-    @Column(name = "modify_at")
-    @Past
     var modifyAt: LocalDateTime,
-
-    @NotNull
-    @Column(name = "is_admin")
-    @ColumnDefault("false")
-    var isAdmin: Boolean = false
+    val isAdmin: Boolean = false
 ) {
-    @OneToMany(mappedBy = "user")
     var userCoupons: MutableList<UserCoupon> = mutableListOf()
 
+    /**
+     * 사용자를 비활성화합니다.
+     */
     fun deactivate() {
         this.status = UserStatus.WITHDRAW
+        this.modifyAt = LocalDateTime.now()
     }
 
+    /**
+     * 사용자를 활성화합니다.
+     */
     fun activate() {
         this.status = UserStatus.ACTIVE
+        this.modifyAt = LocalDateTime.now()
     }
 
+    /**
+     * 마지막 로그인 시간을 갱신합니다.
+     */
     fun updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now()
     }
 
+    /**
+     * 사용자 정보를 업데이트합니다.
+     */
+    fun updateInfo(contactNumber: String, name: String, email: String) {
+        this.contactNumber = contactNumber
+        this.name = name
+        this.email = email
+        this.modifyAt = LocalDateTime.now()
+    }
+
+    /**
+     * 비밀번호를 변경합니다.
+     */
+    fun changePassword(newPassword: String) {
+        this.password = newPassword
+        this.modifyAt = LocalDateTime.now()
+    }
+
+    /**
+     * 사용자가 활성 상태인지 확인합니다.
+     */
+    fun isActive(): Boolean = status == UserStatus.ACTIVE
+
+    /**
+     * 사용자 정보 DTO로 변환합니다.
+     */
     fun toUserInfo(grade: Grade, point: Int): UserInfo {
         return UserInfo(
             id = this.id,
@@ -93,13 +86,31 @@ class User(
         )
     }
 
-    fun updateUserBy(request: UpdateUserCommand) {
-        this.contactNumber = request.contactNumber
-        this.name = request.name
-        this.email = request.email
-    }
-
-    fun changePassword(password: String) {
-        this.password = password
+    companion object {
+        /**
+         * 새로운 사용자를 생성합니다.
+         */
+        fun create(
+            loginId: String,
+            contactNumber: String,
+            name: String,
+            email: String,
+            password: String,
+            birthday: LocalDate,
+            isAdmin: Boolean = false
+        ): User {
+            return User(
+                loginId = loginId,
+                contactNumber = contactNumber,
+                name = name,
+                email = email,
+                password = password,
+                birthday = birthday,
+                createAt = LocalDateTime.now(),
+                status = UserStatus.ACTIVE,
+                modifyAt = LocalDateTime.now(),
+                isAdmin = isAdmin
+            )
+        }
     }
 }

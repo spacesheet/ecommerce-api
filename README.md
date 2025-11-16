@@ -1,4 +1,4 @@
-# ecommerce-api
+# ecommerce-core-api
 OOP + Hexagonal + Kopring
 
 코어 서버 (회원 + 상품 + 주문 + 결제 + 쿠폰 + 정산)

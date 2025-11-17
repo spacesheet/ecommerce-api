@@ -1,6 +1,6 @@
 package com.ps.app.user.application.service
 
-import com.example.demo.annotation.Loggable
+import com.ps.app.common.annotation.Loggable
 import com.ps.app.user.application.dto.UpdateUserCommand
 import com.ps.app.user.application.port.out.UserRepository
 import com.ps.app.user.domain.User

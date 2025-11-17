@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 로그 파일 저장 경로 -->
+    <property name="LOG_PATH" value="logs"/>
+    <property name="LOG_FILE_NAME" value="application"/>
+
+    <!-- 로그 패턴 정의 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %highlight(%-5level) %cyan(%logger{36}) - %msg%n"/>
+
+    <property name="FILE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{requestId}] %-5level %logger{36} - %msg%n"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Console Appender (콘솔 출력) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- File Appender (파일 출력) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- 1. 전체 로그 파일 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- Rolling Policy: 날짜별 로그 파일 분리 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- 30일 보관 -->
+
+            <!-- 파일 크기가 10MB를 넘으면 새 파일 생성 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 2. Error 로그 파일 (ERROR 레벨만) -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/error.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <!-- ERROR 레벨만 필터링 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>90</maxHistory> <!-- Error는 90일 보관 -->
+
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 3. Performance 로그 파일 (느린 쿼리, API 응답 시간) -->
+    <appender name="PERFORMANCE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/performance.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/performance-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory> <!-- 7일 보관 -->
+        </rollingPolicy>
+    </appender>
+
+    <!-- 4. SQL 로그 파일 (Hibernate SQL) -->
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/sql.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/sql-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Async Appender (비동기 로깅 - 성능 향상) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="ASYNC_ERROR_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>512</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <appender-ref ref="ERROR_FILE"/>
+    </appender>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Logger 설정 (계층별) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- 🔷 Domain 계층: 로깅 최소화 (순수 비즈니스 로직) -->
+    <logger name="com.example.demo.domain" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- 🔶 Application 계층: Use Case 실행 추적 -->
+    <logger name="com.example.demo.application" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- 🔸 Infrastructure 계층 -->
+
+    <!-- 🔵 Inbound Adapter (Controller): HTTP 요청/응답 -->
+    <logger name="com.example.demo.infrastructure.adapter.in" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="PERFORMANCE_FILE"/>
+    </logger>
+
+    <!-- 🟡 Outbound Adapter (Repository): DB 접근 -->
+    <logger name="com.example.demo.infrastructure.adapter.out" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="PERFORMANCE_FILE"/>
+    </logger>
+
+    <!-- ⭐ Aspect: AOP 로깅 -->
+    <logger name="com.example.demo.infrastructure.aspect" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- ⚙️ Config -->
+    <logger name="com.example.demo.infrastructure.config" level="INFO" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </logger>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Third-party Libraries -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Spring Framework -->
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+
+    <!-- Hibernate / JPA -->
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SQL_FILE"/>
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SQL_FILE"/>
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" level="DEBUG" additivity="false">
+        <appender-ref ref="SQL_FILE"/>
+    </logger>
+
+    <!-- HikariCP (Connection Pool) -->
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+
+    <!-- Tomcat -->
+    <logger name="org.apache.catalina" level="INFO"/>
+    <logger name="org.apache.tomcat" level="INFO"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- Profile별 설정 -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Local 개발 환경 -->
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 개발 환경 -->
+    <springProfile name="dev">
+        <root level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_ERROR_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 스테이징 환경 -->
+    <springProfile name="staging">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_ERROR_FILE"/>
+            <appender-ref ref="PERFORMANCE_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 프로덕션 환경 -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ASYNC_ERROR_FILE"/>
+            <appender-ref ref="PERFORMANCE_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- 기본 설정 (profile 미지정) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_FILE"/>
+        <appender-ref ref="ASYNC_ERROR_FILE"/>
+    </root>
+
+</configuration>

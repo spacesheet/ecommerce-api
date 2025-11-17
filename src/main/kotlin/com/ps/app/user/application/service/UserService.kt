@@ -1,5 +1,6 @@
 package com.ps.app.user.application.service
 
+import com.example.demo.annotation.Loggable
 import com.ps.app.user.application.dto.UpdateUserCommand
 import com.ps.app.user.application.port.out.UserRepository
 import com.ps.app.user.domain.User
@@ -19,6 +20,7 @@ class UserService(
     /**
      * 사용자 정보를 업데이트합니다.
      */
+    @Loggable(includeArgs = true, includeResult = true)
     fun updateUser(userId: Long, command: UpdateUserCommand): User {
         val user = userRepository.findById(userId)
             ?: throw IllegalArgumentException("사용자를 찾을 수 없습니다.")

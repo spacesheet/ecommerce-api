@@ -1,7 +1,7 @@
 package com.ps.app.user
 
 import com.ps.app.user.domain.User
-import com.ps.app.user.domain.UserStatus
+import com.ps.app.user.domain.constant.UserStatus
 import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals

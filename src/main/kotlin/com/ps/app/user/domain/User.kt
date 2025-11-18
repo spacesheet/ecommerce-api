@@ -1,6 +1,7 @@
 package com.ps.app.user.domain
 
 import com.ps.app.user.adapter.`in`.web.dto.UserInfoResponse
+import com.ps.app.user.domain.constant.UserStatus
 import com.ps.app.user.domain.vo.UserInfo
 import java.time.LocalDate
 import java.time.LocalDateTime

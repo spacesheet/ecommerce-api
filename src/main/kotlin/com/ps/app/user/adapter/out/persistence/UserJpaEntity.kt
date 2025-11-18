@@ -1,6 +1,6 @@
 package com.ps.app.user.adapter.out.persistence
 
-import com.ps.app.user.domain.UserStatus
+import com.ps.app.user.domain.constant.UserStatus
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDate

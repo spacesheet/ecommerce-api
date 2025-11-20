@@ -5,7 +5,7 @@ import com.ps.app.user.domain.*
 interface LoadUserAuthPort {
     fun findById(id: UserAuthId): UserAuth?
     fun findByProviderAndProvideId(provider: AuthProvider, provideId: ProvideId): UserAuth?
-    fun findByUserId(userId: UserId): List<UserAuth>
+//    fun findByUserId(userId: UserId): List<UserAuth>
 }
 
 interface SaveUserAuthPort {

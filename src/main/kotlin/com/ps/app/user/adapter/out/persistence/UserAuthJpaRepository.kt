@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface UserAuthJpaRepository : JpaRepository<UserAuthJpaEntity, Long> {
-    fun findByProviderAndProvideId(provider: String, provideId: ByteArray): UserAuthJpaEntity?
-    fun findByUserId(userId: Long): List<UserAuthJpaEntity>
+interface UserAuthJpaRepository : JpaRepository<UserAuthEntity, Long> {
+    fun findByProviderAndProvideId(provider: String, provideId: ByteArray): UserAuthEntity?
+    fun findByUserId(userId: Long): List<UserAuthEntity>
 }

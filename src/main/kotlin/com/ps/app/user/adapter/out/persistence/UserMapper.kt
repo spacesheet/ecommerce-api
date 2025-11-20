@@ -12,8 +12,8 @@ class UserMapper {
     /**
      * 도메인 모델을 JPA 엔티티로 변환
      */
-    fun toEntity(user: User): UserJpaEntity {
-        return UserJpaEntity(
+    fun toEntity(user: User): UserEntity {
+        return UserEntity(
             id = user.id,
             loginId = user.loginId,
             contactNumber = user.contactNumber,
@@ -32,7 +32,7 @@ class UserMapper {
     /**
      * JPA 엔티티를 도메인 모델로 변환
      */
-    fun toDomain(entity: UserJpaEntity): User {
+    fun toDomain(entity: UserEntity): User {
         return User(
             id = entity.id,
             loginId = entity.loginId,
@@ -52,14 +52,14 @@ class UserMapper {
     /**
      * 도메인 모델 리스트를 엔티티 리스트로 변환
      */
-    fun toEntityList(users: List<User>): List<UserJpaEntity> {
+    fun toEntityList(users: List<User>): List<UserEntity> {
         return users.map { toEntity(it) }
     }
 
     /**
      * 엔티티 리스트를 도메인 모델 리스트로 변환
      */
-    fun toDomainList(entities: List<UserJpaEntity>): List<User> {
+    fun toDomainList(entities: List<UserEntity>): List<User> {
         return entities.map { toDomain(it) }
     }
 }

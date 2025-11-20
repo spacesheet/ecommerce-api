@@ -10,7 +10,7 @@ import jakarta.persistence.*
         Index(name = "index_provide_Id", columnList = "provideId")
     ]
 )
-class UserAuthJpaEntity(
+class UserAuthEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,

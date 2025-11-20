@@ -12,7 +12,7 @@ import java.time.LocalDateTime
  */
 @Entity
 @Table(name = "`user`")
-class UserJpaEntity(
+class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,

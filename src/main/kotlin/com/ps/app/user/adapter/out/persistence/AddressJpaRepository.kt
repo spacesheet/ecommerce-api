@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface AddressJpaRepository : JpaRepository<AddressJpaEntity, Long> {
-    fun findByUserId(userId: Long): List<AddressJpaEntity>
+interface AddressJpaRepository : JpaRepository<AddressEntity, Long> {
+    fun findByUserId(userId: Long): List<AddressEntity>
 }

@@ -1,6 +1,6 @@
+// Domain Layer (domain/User.kt)
 package com.ps.app.user.domain
 
-import com.ps.app.user.adapter.`in`.web.dto.UserInfoResponse
 import com.ps.app.user.domain.constant.UserStatus
 import com.ps.app.user.domain.vo.UserInfo
 import java.time.LocalDate
@@ -71,7 +71,8 @@ class User(
     fun isActive(): Boolean = status == UserStatus.ACTIVE
 
     /**
-     * 사용자 정보 읽기 전용 정보로 변환합니다.
+     * 사용자 정보를 읽기 전용 VO로 변환합니다.
+     * Domain 모델끼리만 조합
      */
     fun toInfo(grade: Grade, point: Int): UserInfo {
         return UserInfo(
@@ -80,7 +81,7 @@ class User(
             loginId = this.loginId,
             birthday = this.birthday,
             isAdmin = this.isAdmin,
-            grade = grade.toResponse(),
+            grade = grade,  // Grade 도메인 모델 그대로 사용
             contactNumber = this.contactNumber,
             email = this.email,
             point = point

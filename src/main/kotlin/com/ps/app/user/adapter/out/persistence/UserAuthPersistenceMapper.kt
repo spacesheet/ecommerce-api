@@ -5,7 +5,7 @@ import java.util.*
 
 object UserAuthPersistenceMapper {
 
-    fun mapToDomain(entity: UserAuthJpaEntity): UserAuth {
+    fun mapToDomain(entity: UserAuthEntity): UserAuth {
         return UserAuth(
             id = entity.id?.let { UserAuthId(it) },
             userId = UserId(entity.userId),
@@ -14,8 +14,8 @@ object UserAuthPersistenceMapper {
         )
     }
 
-    fun mapToEntity(domain: UserAuth): UserAuthJpaEntity {
-        return UserAuthJpaEntity(
+    fun mapToEntity(domain: UserAuth): UserAuthEntity {
+        return UserAuthEntity(
             id = domain.id?.value,
             userId = domain.userId.value,
             provider = domain.provider.value,

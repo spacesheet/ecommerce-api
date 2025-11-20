@@ -4,7 +4,7 @@ import com.ps.app.user.domain.*
 
 interface LoadAddressPort {
     fun findById(id: AddressId): Address?
-    fun findByUserId(userId: UserId): List<Address>
+//    fun findByUserId(userId: UserId): List<Address>
 }
 
 interface SaveAddressPort {

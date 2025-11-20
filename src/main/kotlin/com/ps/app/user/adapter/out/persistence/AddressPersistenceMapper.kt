@@ -4,7 +4,7 @@ import com.ps.app.user.domain.*
 
 object AddressPersistenceMapper {
 
-    fun mapToDomain(entity: AddressJpaEntity): Address {
+    fun mapToDomain(entity: AddressEntity): Address {
         return Address(
             id = entity.id?.let { AddressId(it) },
             userId = UserId(entity.userId),
@@ -16,8 +16,8 @@ object AddressPersistenceMapper {
         )
     }
 
-    fun mapToEntity(domain: Address): AddressJpaEntity {
-        return AddressJpaEntity(
+    fun mapToEntity(domain: Address): AddressEntity {
+        return AddressEntity(
             id = domain.id?.value,
             userId = domain.userId.value,
             address = domain.address.value,

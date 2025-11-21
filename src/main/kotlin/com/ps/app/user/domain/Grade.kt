@@ -1,5 +1,7 @@
 package com.ps.app.user.domain
 
+import com.ps.app.user.domain.constant.GradeName
+
 data class Grade(
     val id: Int = 0,
     val name: GradeName,

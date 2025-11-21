@@ -1,36 +1,40 @@
 package com.ps.app.coupon.domain
 
-import jakarta.persistence.*
-import jakarta.validation.constraints.Min
-
 /**
- * 카테고리 쿠폰 엔티티 클래스입니다.
- *
- * 이 클래스는 카테고리 쿠폰의 ID, 쿠폰 정책, 카테고리 ID를 포함합니다.
+ * 카테고리 쿠폰 도메인 모델
+ * 특정 카테고리에만 적용 가능한 쿠폰
  */
-@Entity
-class CategoryCoupon(
-    /**
-     * 카테고리 쿠폰의 ID 입니다.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null,
+data class CategoryCoupon(
+    val id: Int? = null,
+    val couponPolicyId: Int,
+    val categoryId: Int
+) {
+    init {
+        require(categoryId > 0) { "Category ID must be positive" }
+    }
 
     /**
-     * 쿠폰 정책을 나타내는 CouponPolicy 객체입니다.
-     *
-     * 쿠폰 정책은 LAZY 로딩 전략을 사용하여 필요할 때 로드됩니다.
+     * 특정 카테고리에 적용 가능한지 확인
      */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_policy_id")
-    var couponPolicy: CouponPolicy,
+    fun isApplicableToCategory(targetCategoryId: Int): Boolean {
+        return this.categoryId == targetCategoryId
+    }
 
-    /**
-     * 카테고리 ID 입니다.
-     *
-     * 카테고리 ID는 1 이상이어야 합니다.
-     */
-    @Min(1)
-    var categoryId: Int
-)
+    companion object {
+        /**
+         * 카테고리 쿠폰 생성
+         */
+        fun create(
+            couponPolicyId: Int,
+            categoryId: Int
+        ): CategoryCoupon {
+            require(couponPolicyId > 0) { "Coupon policy ID must be positive" }
+            require(categoryId > 0) { "Category ID must be positive" }
+
+            return CategoryCoupon(
+                couponPolicyId = couponPolicyId,
+                categoryId = categoryId
+            )
+        }
+    }
+}

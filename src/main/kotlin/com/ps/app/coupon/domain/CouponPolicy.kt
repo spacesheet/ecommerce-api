@@ -1,110 +1,141 @@
 package com.ps.app.coupon.domain
 
 import com.ps.app.coupon.domain.constant.DiscountType
-import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDate
 
 /**
- * 쿠폰 정책 엔티티 클래스입니다.
- *
- * 이 클래스는 쿠폰 정책의 ID, 쿠폰 타입, 이름, 할인 타입, 할인율, 할인 금액, 기간, 기준 가격, 최대 할인 금액, 시작일, 종료일, 삭제 여부를 포함합니다.
+ * 쿠폰 정책 도메인 모델
+ * 순수한 비즈니스 로직만 포함하며, JPA 의존성이 없음
  */
-@Entity
-class CouponPolicy(
-    /**
-     * 쿠폰 정책의 ID 입니다.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int? = null,
-
-    /**
-     * 쿠폰 타입을 나타내는 CouponType 객체입니다.
-     *
-     * 쿠폰 타입은 LAZY 로딩 전략을 사용하여 필요할 때 로드됩니다.
-     */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    var couponType: CouponType,
-
-    /**
-     * 쿠폰 정책의 이름입니다.
-     */
-    @NotNull
-    @Column(length = 30)
-    var name: String,
-
-    /**
-     * 쿠폰 정책의 할인 타입입니다.
-     */
-    @NotNull
-    @Enumerated(value = EnumType.STRING)
-    var discountType: DiscountType,
-
-    /**
-     * 쿠폰 정책의 할인율입니다.
-     */
-    @NotNull
-    @ColumnDefault("0")
-    var discountRate: Double,
-
-    /**
-     * 쿠폰 정책의 할인 금액입니다.
-     */
-    @NotNull
-    @ColumnDefault("0")
-    var discountAmount: Int,
-
-    /**
-     * 쿠폰 정책의 지속 기간입니다.
-     */
-    @NotNull
-    var period: Int,
-
-    /**
-     * 쿠폰 정책의 기준 가격입니다.
-     */
-    @NotNull
-    var standardPrice: Int,
-
-    /**
-     * 쿠폰 정책의 최대 할인 금액입니다.
-     */
-    @NotNull
-    var maxDiscountAmount: Int,
-
-    /**
-     * 쿠폰 정책의 시작일입니다.
-     */
-    @NotNull
-    var startDate: LocalDate,
-
-    /**
-     * 쿠폰 정책의 종료일입니다.
-     */
-    @NotNull
-    var endDate: LocalDate,
-
-    /**
-     * 쿠폰 정책의 삭제 여부입니다.
-     */
-    @NotNull
-    var deleted: Boolean
+data class CouponPolicy(
+    val id: Int? = null,
+    val couponTypeId: Int,
+    val name: String,
+    val discountType: DiscountType,
+    val discountRate: Double,
+    val discountAmount: Int,
+    val period: Int,
+    val standardPrice: Int,
+    val maxDiscountAmount: Int,
+    val startDate: LocalDate,
+    val endDate: LocalDate,
+    val deleted: Boolean = false
 ) {
+    init {
+        require(name.isNotBlank()) { "Coupon policy name cannot be blank" }
+        require(name.length <= 30) { "Coupon policy name must be 30 characters or less" }
+        require(discountRate >= 0) { "Discount rate cannot be negative" }
+        require(discountAmount >= 0) { "Discount amount cannot be negative" }
+        require(period > 0) { "Period must be positive" }
+        require(standardPrice >= 0) { "Standard price cannot be negative" }
+        require(maxDiscountAmount >= 0) { "Max discount amount cannot be negative" }
+        require(endDate >= startDate) { "End date must be after or equal to start date" }
+
+        // 할인 타입에 따른 검증
+        when (discountType) {
+            DiscountType.PERCENTAGE -> {
+                require(discountRate > 0) { "Discount rate must be positive for PERCENTAGE type" }
+                require(discountRate <= 100) { "Discount rate cannot exceed 100%" }
+            }
+            DiscountType.FIXED_AMOUNT -> {
+                require(discountAmount > 0) { "Discount amount must be positive for FIXED_AMOUNT type" }
+            }
+        }
+    }
+
     /**
      * 쿠폰 정책의 종료일을 변경합니다.
-     *
-     * @param endDate 새로운 종료일
      */
-    fun changeEndDate(endDate: LocalDate) {
-        this.endDate = endDate
+    fun changeEndDate(newEndDate: LocalDate): CouponPolicy {
+        require(newEndDate >= startDate) { "End date must be after or equal to start date" }
+        require(!deleted) { "Cannot modify deleted policy" }
+        return this.copy(endDate = newEndDate)
     }
 
     /**
      * 쿠폰 정책을 삭제 상태로 변경합니다.
      */
-    fun delete() {
-        this.deleted = true
+    fun delete(): CouponPolicy {
+        require(!deleted) { "Policy is already deleted" }
+        return this.copy(deleted = true)
+    }
+
+    /**
+     * 쿠폰 정책이 현재 활성 상태인지 확인합니다.
+     */
+    fun isActive(): Boolean {
+        val now = LocalDate.now()
+        return !deleted && now >= startDate && now <= endDate
+    }
+
+    /**
+     * 쿠폰 정책이 만료되었는지 확인합니다.
+     */
+    fun isExpired(): Boolean {
+        return LocalDate.now().isAfter(endDate)
+    }
+
+    /**
+     * 주어진 가격에 대한 할인 금액을 계산합니다.
+     */
+    fun calculateDiscount(originalPrice: Int): Int {
+        require(originalPrice >= 0) { "Original price cannot be negative" }
+        require(!deleted) { "Cannot use deleted policy" }
+        require(isActive()) { "Cannot use inactive policy" }
+        require(originalPrice >= standardPrice) {
+            "Original price must be at least $standardPrice to apply this coupon"
+        }
+
+        val calculatedDiscount = when (discountType) {
+            DiscountType.PERCENTAGE -> {
+                (originalPrice * discountRate / 100).toInt()
+            }
+            DiscountType.FIXED_AMOUNT -> {
+                discountAmount
+            }
+        }
+
+        // 최대 할인 금액 제한 적용
+        return minOf(calculatedDiscount, maxDiscountAmount)
+    }
+
+    /**
+     * 할인 후 최종 가격을 계산합니다.
+     */
+    fun calculateFinalPrice(originalPrice: Int): Int {
+        val discount = calculateDiscount(originalPrice)
+        return maxOf(0, originalPrice - discount)
+    }
+
+    companion object {
+        /**
+         * 새로운 쿠폰 정책을 생성합니다.
+         */
+        fun create(
+            couponTypeId: Int,
+            name: String,
+            discountType: DiscountType,
+            discountRate: Double = 0.0,
+            discountAmount: Int = 0,
+            period: Int,
+            standardPrice: Int,
+            maxDiscountAmount: Int,
+            startDate: LocalDate,
+            endDate: LocalDate
+        ): CouponPolicy {
+            return CouponPolicy(
+                couponTypeId = couponTypeId,
+                name = name,
+                discountType = discountType,
+                discountRate = discountRate,
+                discountAmount = discountAmount,
+                period = period,
+                standardPrice = standardPrice,
+                maxDiscountAmount = maxDiscountAmount,
+                startDate = startDate,
+                endDate = endDate,
+                deleted = false
+            )
+        }
     }
 }

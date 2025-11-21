@@ -1,5 +1,6 @@
 package com.ps.app.coupon.adapter.`in`.web.advice
 
+import com.ps.app.common.exception.ErrorResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus

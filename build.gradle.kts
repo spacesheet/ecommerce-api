@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
+    id("com.google.devtools.ksp") version "1.9.22-1.0.17"
 }
 
 group = "com.ps"
@@ -38,6 +39,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+    // QueryDSL
+    implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+    ksp("com.querydsl:querydsl-apt:5.0.0:jakarta")
+    ksp("jakarta.annotation:jakarta.annotation-api")
+    ksp("jakarta.persistence:jakarta.persistence-api")
+
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     implementation("net.logstash.logback:logstash-logback-encoder:7.4")
@@ -62,4 +69,9 @@ allOpen {
 }
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+// KSP 생성 파일을 소스셋에 추가
+kotlin.sourceSets.main {
+    kotlin.srcDir("build/generated/ksp/main/kotlin")
 }

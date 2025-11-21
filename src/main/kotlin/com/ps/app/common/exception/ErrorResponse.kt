@@ -1,4 +1,4 @@
-package com.ps.app.coupon.adapter.`in`.web.advice
+package com.ps.app.common.exception
 
 import java.time.LocalDateTime
 

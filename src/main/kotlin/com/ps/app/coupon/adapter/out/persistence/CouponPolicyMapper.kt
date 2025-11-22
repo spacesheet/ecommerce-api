@@ -2,7 +2,6 @@ package com.ps.app.coupon.adapter.out.persistence
 
 import com.ps.app.coupon.domain.CouponPolicy
 import com.ps.app.coupon.domain.constant.DiscountType
-import com.ps.app.coupon.infrastructure.persistence.entity.CouponPolicyEntity
 
 object CouponPolicyMapper {
 

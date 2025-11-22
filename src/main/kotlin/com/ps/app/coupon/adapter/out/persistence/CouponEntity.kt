@@ -1,5 +1,4 @@
-// Infrastructure Layer (infrastructure/persistence/entity/CouponEntity.kt)
-package com.ps.app.coupon.infrastructure.persistence
+package com.ps.app.coupon.adapter.out.persistence
 
 import com.ps.app.user.adapter.out.persistence.UserEntity
 import jakarta.persistence.*
@@ -8,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "coupon")
-class CouponEntity(
+open class CouponEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -42,7 +41,20 @@ class CouponEntity(
 ) {
     protected constructor() : this(
         null,
-        UserEntity(),
+        UserEntity(
+            id = TODO(),
+            loginId = TODO(),
+            contactNumber = TODO(),
+            name = TODO(),
+            email = TODO(),
+            password = TODO(),
+            birthday = TODO(),
+            createAt = TODO(),
+            lastLoginAt = TODO(),
+            status = TODO(),
+            modifyAt = TODO(),
+            isAdmin = TODO()
+        ),
         CouponPolicyEntity(),
         "",
         LocalDate.now(),

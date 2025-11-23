@@ -1,7 +1,7 @@
 package com.ps.app.product.domain
 
 class Author(
-    val id: Long = 0,
+    val id: Int = 0,
     val name: String
 ) {
     companion object {

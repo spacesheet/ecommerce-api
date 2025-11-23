@@ -188,23 +188,6 @@ class PerformanceLoggingAspect {
 }
 
 /**
- * 메서드별 성능 통계 데이터 클래스
- */
-data class MethodPerformanceStats(
-    val totalCalls: Long,
-    val totalTime: Long,
-    val minTime: Long,
-    val maxTime: Long,
-    val errorCount: Long
-) {
-    val averageTime: Long
-        get() = if (totalCalls > 0) totalTime / totalCalls else 0
-
-    val errorRate: Double
-        get() = if (totalCalls > 0) (errorCount.toDouble() / totalCalls) * 100 else 0.0
-}
-
-/**
  * 성능 모니터링 컨트롤러 (선택사항)
  * Actuator 엔드포인트처럼 성능 통계 조회 가능
  */

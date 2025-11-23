@@ -1,15 +1,13 @@
 package com.ps.app.common.annotation
 
+import com.ps.app.common.constant.LogLevel
+
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class Loggable(
     val level: LogLevel = LogLevel.INFO,
-    val includeArgs: Boolean = true,           // ⭐ 이것 필요!
-    val includeResult: Boolean = true,         // ⭐ 이것 필요!
-    val includeExecutionTime: Boolean = true   // ⭐ 이것 필요!
+    val includeArgs: Boolean = true,
+    val includeResult: Boolean = true,
+    val includeExecutionTime: Boolean = true
 )
-
-enum class LogLevel {
-    DEBUG, INFO, WARN, ERROR
-}

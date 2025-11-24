@@ -106,7 +106,7 @@ class AdvancedLoggingAspect {
     /**
      * 예외 발생 시 상세 로깅
      */
-    @Around("execution(* com.example.demo..*(..))")
+    @Around("execution(* com.ps.app..*(..))")
     fun logExceptionDetails(joinPoint: ProceedingJoinPoint): Any? {
         return try {
             joinPoint.proceed()

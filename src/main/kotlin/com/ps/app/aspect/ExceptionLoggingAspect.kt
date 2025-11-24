@@ -12,6 +12,12 @@ import java.time.format.DateTimeFormatter
 
 private val logger = KotlinLogging.logger {}
 
+
+
+/**
+ * 5. 예외 로깅 (모든 계층)
+ */
+
 /**
  * 예외 로깅 Aspect
  * - 모든 계층에서 발생하는 예외를 포착하고 상세 로깅

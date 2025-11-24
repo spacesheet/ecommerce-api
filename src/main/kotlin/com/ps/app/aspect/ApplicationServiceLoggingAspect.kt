@@ -9,8 +9,6 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
-
 /**
  * 2. Application Service 로깅 (Use Case 실행)
  */
@@ -18,6 +16,8 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(2)
 class ApplicationServiceLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
 
     @Around("execution(* com.ps.app.*.application.service.in..*(..))")
     fun logApplicationService(joinPoint: ProceedingJoinPoint): Any? {

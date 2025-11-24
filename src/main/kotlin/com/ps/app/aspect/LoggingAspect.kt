@@ -9,11 +9,13 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
 
 @Aspect
 @Component
 class LoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
+
 
     /**
      * Controller 레이어 포인트컷

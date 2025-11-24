@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
 
 /**
  * 3. Outbound Adapter 로깅 (Secondary Adapter - Repository)
@@ -18,6 +17,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(3)
 class OutboundAdapterLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
+
 
     @Around("execution(* com.ps.app.*.adapter.out..*(..))")
     fun logOutboundAdapter(joinPoint: ProceedingJoinPoint): Any? {

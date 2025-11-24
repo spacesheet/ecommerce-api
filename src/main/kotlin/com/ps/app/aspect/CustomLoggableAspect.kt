@@ -10,8 +10,6 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
-
 /**
  * 4. @Loggable 애노테이션 기반 로깅
  */
@@ -19,8 +17,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(4)
 class CustomLoggableAspect {
+    private val logger = KotlinLogging.logger {}
 
-    @Around("@annotation(loggable)")
+    @Around("@annotation(com.ps.app.common.annotation.Loggable)")
     fun logLoggableMethod(joinPoint: ProceedingJoinPoint, loggable: Loggable): Any? {
         val signature = joinPoint.signature as MethodSignature
         val methodName = signature.method.name

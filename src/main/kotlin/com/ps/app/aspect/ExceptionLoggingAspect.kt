@@ -10,9 +10,6 @@ import org.springframework.stereotype.Component
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-private val logger = KotlinLogging.logger {}
-
-
 
 /**
  * 5. 예외 로깅 (모든 계층)
@@ -27,6 +24,8 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(0)
 class ExceptionLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
 
     companion object {
         private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")

@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
 
 /**
  * 성능 모니터링 Aspect
@@ -24,6 +23,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(5)
 class PerformanceLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
+
 
     companion object {
         // 계층별 임계값 (milliseconds)

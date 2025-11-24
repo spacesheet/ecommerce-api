@@ -8,11 +8,12 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
 
 @Aspect
 @Component
 class AdvancedLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
 
     companion object {
         private const val SLOW_METHOD_THRESHOLD = 3000L // 3초

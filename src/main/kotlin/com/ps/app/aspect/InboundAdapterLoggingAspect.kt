@@ -9,11 +9,9 @@ import org.springframework.core.annotation.Order
 import org.springframework.stereotype.Component
 import kotlin.system.measureTimeMillis
 
-private val logger = KotlinLogging.logger {}
 
 /**
  * 헥사고날 아키텍처 계층별 로깅 Aspect
- * Infrastructure 계층에 위치
  */
 
 /**
@@ -23,6 +21,9 @@ private val logger = KotlinLogging.logger {}
 @Component
 @Order(1)
 class InboundAdapterLoggingAspect {
+
+    private val logger = KotlinLogging.logger {}
+
 
     @Around("execution(* com.ps.app.*.adapter.in..*(..))")
     fun logInboundAdapter(joinPoint: ProceedingJoinPoint): Any? {

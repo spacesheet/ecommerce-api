@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/coupons")
-class CouponsController(
+class CouponController(
     private val useCouponUseCase: UseCouponUseCase,
     private val getAvailableCouponsUseCase: GetAvailableCouponsUseCase,
     private val issueCouponUseCase: IssueCouponUseCase,

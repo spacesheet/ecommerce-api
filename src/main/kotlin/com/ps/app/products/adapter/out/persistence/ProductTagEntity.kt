@@ -23,24 +23,24 @@ class ProductTagEntity(
     @JoinColumn(name = "tag_id", insertable = false, updatable = false)
     val tag: TagEntity
 ) {
-    fun toDomain(): ProductTag = ProductTag(
-        productId = pk.productId,
-        tagId = pk.tagId,
-        product = product.toDomain(),
-        tag = tag.toDomain()
-    )
-
-    companion object {
-        fun fromDomain(
-            domain: ProductTag,
-            productEntity: ProductEntity,
-            tagEntity: TagEntity
-        ): ProductTagEntity {
-            return ProductTagEntity(
-                pk = ProductTagPK(domain.productId, domain.tagId),
-                product = productEntity,
-                tag = tagEntity
-            )
-        }
-    }
+//    fun toDomain(): ProductTag = ProductTag(
+//        productId = pk.productId,
+//        tagId = pk.tagId,
+//        product = product.toDomain(),
+//        tag = tag.toDomain()
+//    )
+//
+//    companion object {
+//        fun fromDomain(
+//            domain: ProductTag,
+//            productEntity: ProductEntity,
+//            tagEntity: TagEntity
+//        ): ProductTagEntity {
+//            return ProductTagEntity(
+//                pk = ProductTagPK(domain.productId, domain.tagId),
+//                product = productEntity,
+//                tag = tagEntity
+//            )
+//        }
+//    }
 }

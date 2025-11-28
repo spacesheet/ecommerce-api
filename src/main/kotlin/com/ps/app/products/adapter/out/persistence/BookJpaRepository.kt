@@ -8,7 +8,7 @@ interface BookJpaRepository : JpaRepository<BookEntity, Long> {
     fun findByIsbn(isbn: String): BookEntity?
 
     // Product ID로 조회
-    fun findByProductId(productId: Int): List<BookEntity>
+    fun findByProductId(productId: Long): List<BookEntity>
 
     // 제목으로 조회
     fun findByTitle(title: String): BookEntity?
@@ -27,6 +27,8 @@ interface BookJpaRepository : JpaRepository<BookEntity, Long> {
 
     // Product가 있는 책 조회
     fun findByProductIsNotNull(): List<BookEntity>
+
+    fun findByProductIdIsNull(): List<BookEntity>  // 미등록 도서
 
     // 출판일 범위로 조회
     @Query("""

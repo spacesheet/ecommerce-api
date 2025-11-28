@@ -1,6 +1,7 @@
 package com.ps.app.products.adapter.out.persistence
 
 import com.ps.app.products.domain.Publisher
+import com.ps.app.products.domain.PublisherId
 import jakarta.persistence.*
 
 @Entity
@@ -8,7 +9,7 @@ import jakarta.persistence.*
 class PublisherEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int = 0,
+    val id: Long = 0,
 
     @Column(nullable = false)
     val name: String,
@@ -17,14 +18,14 @@ class PublisherEntity(
     val books: MutableList<BookEntity> = mutableListOf()
 ) {
     fun toDomain(): Publisher = Publisher(
-        id = id,
+        id = PublisherId(id),  // Long -> PublisherId 변환
         name = name
     )
 
     companion object {
         fun fromDomain(domain: Publisher): PublisherEntity {
             return PublisherEntity(
-                id = domain.id,
+                id = domain.id.value,  // PublisherId -> Long 변환
                 name = domain.name
             )
         }

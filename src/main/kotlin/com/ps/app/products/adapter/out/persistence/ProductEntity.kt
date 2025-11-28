@@ -1,9 +1,14 @@
 package com.ps.app.products.adapter.out.persistence
 
 import com.ps.app.products.domain.Product
+import com.ps.app.products.domain.constant.SalesStatus
 import com.ps.app.products.domain.constant.StockStatus
 import jakarta.persistence.*
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "product")
@@ -22,7 +27,7 @@ class ProductEntity(
     val description: String?,
 
     @Column(nullable = false)
-    val price: Int,
+    val price: BigDecimal,
 
     @Column(name = "forward_date")
     val forwardDate: LocalDate?,
@@ -42,35 +47,46 @@ class ProductEntity(
     val category: CategoryEntity,
 
     @OneToMany(mappedBy = "product", cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    val productTags: MutableList<ProductTagEntity> = mutableListOf()
-) {
-    fun toDomain(): Product = Product(
-        id = id,
-        stock = stock,
-        productName = productName,
-        description = description,
-        price = price,
-        forwardDate = forwardDate,
-        score = score,
-        thumbnailPath = thumbnailPath,
-        stockStatus = stockStatus,
-        category = category.toDomain()
-    )
+    val productTags: MutableList<ProductTagEntity> = mutableListOf(),
 
-    companion object {
-        fun fromDomain(domain: Product, categoryEntity: CategoryEntity): ProductEntity {
-            return ProductEntity(
-                id = domain.id,
-                stock = domain.stock,
-                productName = domain.productName,
-                description = domain.description,
-                price = domain.price,
-                forwardDate = domain.forwardDate,
-                score = domain.score,
-                thumbnailPath = domain.thumbnailPath,
-                stockStatus = domain.stockStatus,
-                category = categoryEntity
-            )
-        }
-    }
+    @Enumerated(EnumType.STRING)
+    val salesStatus: SalesStatus,
+
+    val discountRate: Double? = null,
+
+    @CreatedDate
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @LastModifiedDate
+    val updatedAt: LocalDateTime = LocalDateTime.now()
+) {
+//    fun toDomain(): Product = Product(
+//        id = id,
+//        stock = stock,
+//        productName = productName,
+//        description = description,
+//        price = price,
+//        forwardDate = forwardDate,
+//        score = score,
+//        thumbnailPath = thumbnailPath,
+//        stockStatus = stockStatus,
+//        category = category.toDomain()
+//    )
+//
+//    companion object {
+//        fun fromDomain(domain: Product, categoryEntity: CategoryEntity): ProductEntity {
+//            return ProductEntity(
+//                id = domain.id,
+//                stock = domain.stock,
+//                productName = domain.productName,
+//                description = domain.description,
+//                price = domain.price,
+//                forwardDate = domain.forwardDate,
+//                score = domain.score,
+//                thumbnailPath = domain.thumbnailPath,
+//                stockStatus = domain.stockStatus,
+//                category = categoryEntity
+//            )
+//        }
+//    }
 }

@@ -30,7 +30,7 @@ class ProductPersistenceAdapter(
     }
 
     override fun delete(product: Product) {
-        productJpaRepository.deleteById(product.id)
+        productJpaRepository.deleteById(product.id.value)
     }
 
     override fun existsById(id: Int): Boolean {

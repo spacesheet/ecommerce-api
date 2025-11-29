@@ -1,4 +1,4 @@
-package com.ps.app.config
+package com.ps.app.common.config
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger

@@ -1,4 +1,4 @@
-package com.ps.app.config
+package com.ps.app.common.config
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager

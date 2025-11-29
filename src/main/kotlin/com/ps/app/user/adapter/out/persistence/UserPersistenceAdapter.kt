@@ -1,7 +1,8 @@
 package com.ps.app.user.adapter.out.persistence
 
-import com.ps.app.user.application.port.out.UserRepository
+import com.ps.app.user.application.port.out.UserPort
 import com.ps.app.user.domain.User
+import com.ps.app.user.domain.UserId
 import org.springframework.stereotype.Component
 
 /**
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component
 class UserPersistenceAdapter(
     private val userJpaRepository: UserJpaRepository,
     private val userMapper: UserMapper
-) : UserRepository {
+) : UserPort {
 
     override fun save(user: User): User {
         val entity = userMapper.toEntity(user)
@@ -20,7 +21,7 @@ class UserPersistenceAdapter(
         return userMapper.toDomain(savedEntity)
     }
 
-    override fun findById(id: Long): User? {
+    override fun findById(id: UserId): User? {
         return userJpaRepository.findById(id)
             .map { userMapper.toDomain(it) }
             .orElse(null)

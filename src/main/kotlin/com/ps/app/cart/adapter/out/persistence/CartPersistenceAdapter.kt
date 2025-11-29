@@ -35,7 +35,7 @@ class CartPersistenceAdapter(
     }
 
     override fun save(cart: Cart): Cart {
-        val userEntity = cart.user?.let { findUserEntity(it.id) }
+        val userEntity = cart.user?.let { findUserEntity(it.id?.value) }
         val entity = CartMapper.toEntity(cart, userEntity)
         val saved = cartJpaRepository.save(entity)
         return CartMapper.toDomain(saved)

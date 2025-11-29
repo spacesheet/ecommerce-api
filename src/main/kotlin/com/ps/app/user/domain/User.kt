@@ -10,7 +10,7 @@ import java.time.LocalDateTime
  * 순수한 비즈니스 로직만 포함하며, JPA 의존성이 없음
  */
 class User(
-    val id: Long? = null,
+    val id: UserId? = null,
     var loginId: String,
     var contactNumber: String,
     var name: String,
@@ -75,7 +75,7 @@ class User(
      */
     fun toInfo(grade: Grade, point: Int): UserInfo {
         return UserInfo(
-            userId = this.id,
+            userId = this.id?.value,
             name = this.name,
             loginId = this.loginId,
             birthday = this.birthday,

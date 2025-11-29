@@ -2,6 +2,7 @@ package com.ps.app.products.adapter.out.persistence
 
 import com.ps.app.products.application.port.out.ProductPort
 import com.ps.app.products.domain.Product
+import com.ps.app.products.domain.ProductId
 import org.springframework.stereotype.Repository
 
 @Repository
@@ -19,7 +20,7 @@ class ProductPersistenceAdapter(
         return saved.toDomain()
     }
 
-    override fun findById(id: Int): Product? {
+    override fun findById(id: ProductId): Product? {
         return productJpaRepository.findById(id)
             .map { it.toDomain() }
             .orElse(null)

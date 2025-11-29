@@ -3,6 +3,7 @@ package com.ps.app.products.adapter.out.persistence
 import com.ps.app.products.domain.constant.StockStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import java.util.Optional
 
 interface ProductJpaRepository : JpaRepository<ProductEntity, Int> {
     // 상품명으로 조회
@@ -36,5 +37,5 @@ interface ProductJpaRepository : JpaRepository<ProductEntity, Int> {
     """)
     fun findTopProducts(limit: Int): List<ProductEntity>
     fun deleteById(id: Long) : Void
-    fun findById(id: Long) : ProductEntity?
+    fun findById(id: Long) : Optional<ProductEntity?>
 }

@@ -1,4 +1,4 @@
-package com.ps.app.cart.application
+package com.ps.app.cart.application.service
 
 import com.ps.app.cart.adapter.`in`.web.dto.CartDetailResponse
 import com.ps.app.cart.adapter.out.persistence.CartDetailMapper
@@ -6,7 +6,6 @@ import com.ps.app.cart.application.port.out.CartDetailPort
 import com.ps.app.cart.application.port.out.CartPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
 
 @Service
 @Transactional(readOnly = true)

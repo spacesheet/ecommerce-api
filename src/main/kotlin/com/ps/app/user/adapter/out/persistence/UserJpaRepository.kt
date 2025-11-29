@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 interface UserJpaRepository : JpaRepository<UserEntity, Long> {
     fun findByLoginId(loginId: String): UserEntity?
     fun existsByLoginId(loginId: String): Boolean
+    fun getReferenceById(id: Long?): UserEntity
 }

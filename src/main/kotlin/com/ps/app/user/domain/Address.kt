@@ -1,6 +1,5 @@
 package com.ps.app.user.domain
 
-// 도메인 엔티티 (집합 루트)
 data class Address(
     val id: AddressId? = null,
     val userId: Long,

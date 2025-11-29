@@ -1,25 +1,29 @@
 package com.ps.app.products.domain
 
 import com.ps.app.products.domain.constant.SalesStatus
-import com.ps.app.products.domain.constant.StockStatus
 import java.math.BigDecimal
-import java.time.LocalDate
 
 // 판매 상품 정보
 data class Product(
     val id: ProductId,
+    val name: String,
     val price: Money,
     val stockQuantity: Int,
     val salesStatus: SalesStatus,
     val discountRate: Double?,
-    val category: Category
+    val category: Category,
+    val thumbnailPath: String,
+    val productTags: MutableSet<ProductTag> = HashSet()
 ) {
     companion object {
         fun create(
+            name: String,
             price: Money,
             stockQuantity: Int,
             discountRate: Double? = null,
-            category: Category
+            category: Category,
+            thumbnailPath: String,
+            productTags: MutableSet<ProductTag> = HashSet()
         ): Product {
             require(price.isPositive()) { "가격은 0보다 커야 합니다" }
             require(stockQuantity >= 0) { "재고는 0 이상이어야 합니다" }
@@ -29,11 +33,14 @@ data class Product(
 
             return Product(
                 id = ProductId.NEW,
+                name = name,
                 price = price,
                 stockQuantity = stockQuantity,
                 salesStatus = if (stockQuantity > 0) SalesStatus.ON_SALE else SalesStatus.SOLD_OUT,
                 discountRate = discountRate,
-                category = category
+                category = category,
+                thumbnailPath = thumbnailPath,
+                productTags = productTags
             )
         }
     }
@@ -98,5 +105,11 @@ data class Product(
     fun resume(): Product {
         val newStatus = if (stockQuantity > 0) SalesStatus.ON_SALE else SalesStatus.SOLD_OUT
         return copy(salesStatus = newStatus)
+    }
+
+    fun hasTag(tagName: String): Boolean {
+        return productTags.any { productTag ->
+            productTag.tag.name.equals(tagName, ignoreCase = true)
+        }
     }
 }

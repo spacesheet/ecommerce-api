@@ -1,6 +1,5 @@
 package com.ps.app.user.domain
 
-// 도메인 엔티티
 data class UserAuth(
     val id: UserAuthId? = null,
     val userId: Long,

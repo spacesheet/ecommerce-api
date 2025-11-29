@@ -62,4 +62,6 @@ class UserMapper {
     fun toDomainList(entities: List<UserEntity>): List<User> {
         return entities.map { toDomain(it) }
     }
+
+    companion object
 }

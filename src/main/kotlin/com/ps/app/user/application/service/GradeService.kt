@@ -38,7 +38,7 @@ class GradeService(
 
     private fun toResponse(grade: Grade): GradeInfoResponse {
         return GradeInfoResponse(
-            name = grade.name,
+            name = grade.name.name,
             standard = grade.standard,
             benefit = grade.benefit
         )

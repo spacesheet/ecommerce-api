@@ -10,7 +10,7 @@ import java.time.LocalDateTime
  * 순수한 비즈니스 로직만 포함하며, JPA 의존성이 없음
  */
 class User(
-    val id: UserId? = UserId.NEW,
+    val id: UserId = UserId.NEW,
     var loginId: String,
     var contactNumber: String,
     var name: String,

@@ -4,19 +4,19 @@ import jakarta.persistence.*
 
 @Entity
 @Table(
-    name = "category_coupon",
+    name = "product_coupon",
     indexes = [
-        Index(name = "idx_category_coupon_policy_id", columnList = "coupon_policy_id"),
-        Index(name = "idx_category_coupon_category_id", columnList = "category_id")
+        Index(name = "idx_product_coupon_policy_id", columnList = "coupon_policy_id"),
+        Index(name = "idx_product_coupon_product_id", columnList = "product_id")
     ],
     uniqueConstraints = [
         UniqueConstraint(
-            name = "uk_category_coupon",
-            columnNames = ["coupon_policy_id", "category_id"]
+            name = "uk_product_coupon",
+            columnNames = ["coupon_policy_id", "product_id"]
         )
     ]
 )
-class CategoryCouponEntity(
+class ProductCouponEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Int = 0,
@@ -25,6 +25,6 @@ class CategoryCouponEntity(
     @JoinColumn(name = "coupon_policy_id", nullable = false)
     val couponPolicy: CouponPolicyEntity,
 
-    @Column(name = "category_id", nullable = false)
-    val categoryId: Int
+    @Column(name = "product_id", nullable = false)
+    val productId: Long
 )

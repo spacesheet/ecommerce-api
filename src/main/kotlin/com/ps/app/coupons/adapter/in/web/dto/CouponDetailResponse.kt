@@ -34,16 +34,16 @@ data class CouponDetailResponse(
     companion object {
         fun from(coupons: Coupons, policy: CouponPolicy): CouponDetailResponse {
             return CouponDetailResponse(
-                id = coupons.id,
-                ownerId = coupons.ownerId,
+                id = coupons.id.value,
+                ownerId = coupons.ownerId.value,
                 couponCode = coupons.couponCode,
                 createDate = coupons.createDate,
                 expireDate = coupons.expireDate,
-                status = coupons.status,
+                status = coupons.couponStatus,
                 isExpired = coupons.isExpired(),
                 isAvailable = coupons.isAvailable(),
                 policy = CouponPolicyInfo(
-                    id = policy.id,
+                    id = policy.id.value,
                     name = policy.name,
                     discountType = policy.discountType,
                     discountRate = policy.discountRate,

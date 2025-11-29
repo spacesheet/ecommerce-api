@@ -1,20 +1,21 @@
 package com.ps.app.user.adapter.out.persistence
 
 import com.ps.app.user.domain.User
+import com.ps.app.user.domain.UserId
 import org.springframework.stereotype.Component
 
 /**
  * User 도메인 모델과 JPA 엔티티 간 변환을 담당하는 매퍼
  */
 @Component
-class UserMapper {
+object UserMapper {
 
     /**
      * 도메인 모델을 JPA 엔티티로 변환
      */
     fun toEntity(user: User): UserEntity {
         return UserEntity(
-            id = user.id,
+            id = UserId(user.id.value),
             loginId = user.loginId,
             contactNumber = user.contactNumber,
             name = user.name,
@@ -32,7 +33,7 @@ class UserMapper {
     /**
      * JPA 엔티티를 도메인 모델로 변환
      */
-    fun toDomain(entity: UserEntity): User {
+    fun toDomain(entity: UserEntity?): User {
         return User(
             id = entity.id,
             loginId = entity.loginId,
@@ -62,6 +63,4 @@ class UserMapper {
     fun toDomainList(entities: List<UserEntity>): List<User> {
         return entities.map { toDomain(it) }
     }
-
-    companion object
 }

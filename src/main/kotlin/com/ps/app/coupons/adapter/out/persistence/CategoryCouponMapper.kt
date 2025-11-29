@@ -1,6 +1,8 @@
 package com.ps.app.coupons.adapter.out.persistence
 
 import com.ps.app.coupons.domain.CategoryCoupon
+import com.ps.app.coupons.domain.CategoryCouponId
+import com.ps.app.products.domain.CategoryId
 
 /**
  * CategoryCoupon Domain ↔ Entity 변환 Mapper
@@ -11,11 +13,12 @@ object CategoryCouponMapper {
      * Entity를 Domain 모델로 변환
      */
     fun toDomain(entity: CategoryCouponEntity): CategoryCoupon {
+        val couponPolicy = CouponPolicyMapper.toDomain(entity.couponPolicy)
+
         return CategoryCoupon(
-            id = entity.id,
-            couponPolicyId = entity.couponPolicy.id
-                ?: throw IllegalStateException("CouponPolicy id cannot be null"),
-            categoryId = entity.categoryId
+            id = CategoryCouponId(entity.id),
+            couponPolicy = couponPolicy,
+            categoryId = CategoryId(entity.categoryId)
         )
     }
 
@@ -34,9 +37,9 @@ object CategoryCouponMapper {
         couponPolicy: CouponPolicyEntity
     ): CategoryCouponEntity {
         return CategoryCouponEntity(
-            id = domain.id,
+            id = domain.id.value,
             couponPolicy = couponPolicy,
-            categoryId = domain.categoryId
+            categoryId = domain.categoryId.value
         )
     }
 
@@ -55,8 +58,8 @@ object CategoryCouponMapper {
         couponPolicy: CouponPolicyEntity
     ): List<CategoryCouponEntity> {
         return domains.map { domain ->
-            require(domain.couponPolicyId == couponPolicy.id) {
-                "Domain couponPolicyId ${domain.couponPolicyId} does not match provided policy ${couponPolicy.id}"
+            require(domain.couponPolicy == couponPolicy) {
+                "Domain couponPolicyId ${domain.couponPolicy.id.value} does not match provided policy ${couponPolicy.id}"
             }
             toEntity(domain, couponPolicy)
         }
@@ -70,9 +73,9 @@ object CategoryCouponMapper {
         couponPolicyMap: Map<Int, CouponPolicyEntity>
     ): List<CategoryCouponEntity> {
         return domains.map { domain ->
-            val couponPolicy = couponPolicyMap[domain.couponPolicyId]
+            val couponPolicy = couponPolicyMap[domain.couponPolicy.id.value]
                 ?: throw IllegalArgumentException(
-                    "CouponPolicy not found in map: ${domain.couponPolicyId}"
+                    "CouponPolicy not found in map: ${domain.couponPolicy.id.value}"
                 )
             toEntity(domain, couponPolicy)
         }
@@ -90,7 +93,7 @@ object CategoryCouponMapper {
         return CategoryCouponEntity(
             id = entity.id,
             couponPolicy = couponPolicy,
-            categoryId = domain.categoryId
+            categoryId = domain.categoryId.value
         )
     }
 }

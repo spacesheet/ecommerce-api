@@ -8,12 +8,10 @@ import jakarta.validation.constraints.NotNull
 class CouponTypeEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null,
+    val id: Int,
 
     @NotNull
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     var name: String
-) {
-    constructor() : this(null, "")
-}
+)

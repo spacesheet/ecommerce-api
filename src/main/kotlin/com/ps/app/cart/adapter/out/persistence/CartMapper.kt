@@ -1,11 +1,8 @@
 package com.ps.app.cart.adapter.out.persistence
 
 import com.ps.app.cart.domain.Cart
-import com.ps.app.cart.domain.CartDetail
-import com.ps.app.products.adapter.out.persistence.ProductEntity
 import com.ps.app.user.adapter.out.persistence.UserEntity
 import com.ps.app.user.adapter.out.persistence.UserMapper
-import com.ps.app.user.domain.User
 import java.nio.ByteBuffer
 import java.util.UUID
 

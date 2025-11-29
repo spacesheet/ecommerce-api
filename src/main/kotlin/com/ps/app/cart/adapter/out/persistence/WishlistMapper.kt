@@ -32,9 +32,9 @@ object WishlistMapper {
     fun toResponse(wishlist: Wishlist): WishlistResponse {
         return WishlistResponse(
             id = wishlist.id.value,
-            userId = wishlist.user.id.value,
+            userId = wishlist.user.id?.value,
             productId = wishlist.product.id.value,
-            productName = wishlist.product.productName,
+            productName = wishlist.product.name,
             price = wishlist.product.price.value.toInt(),
             thumbnailPath = wishlist.product.thumbnailPath,
             canWrap = wishlist.product.hasTag("포장가능")
@@ -45,3 +45,4 @@ object WishlistMapper {
         return wishlists.map { toResponse(it) }
     }
 }
+

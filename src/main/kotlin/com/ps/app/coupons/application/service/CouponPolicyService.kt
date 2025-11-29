@@ -1,65 +1,87 @@
 package com.ps.app.coupons.application.service
 
-import com.ps.app.coupons.application.port.`in`.*
 import com.ps.app.coupons.application.port.out.CouponPolicyPort
-import com.ps.app.coupons.application.usecases.CreateCouponPolicyUseCase
-import com.ps.app.coupons.application.usecases.DeleteCouponPolicyUseCase
-import com.ps.app.coupons.application.usecases.GetActiveCouponPoliciesUseCase
-import com.ps.app.coupons.application.usecases.UpdateCouponPolicyEndDateUseCase
+import com.ps.app.coupons.application.port.out.CouponTypePort
 import com.ps.app.coupons.domain.CouponPolicy
+import com.ps.app.coupons.domain.CouponPolicyId
+import com.ps.app.coupons.domain.CouponTypeId
+import com.ps.app.coupons.domain.constant.DiscountType
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 class CouponPolicyService(
-    private val couponPolicyPort: CouponPolicyPort
-) : CreateCouponPolicyUseCase,
-    UpdateCouponPolicyEndDateUseCase,
-    DeleteCouponPolicyUseCase,
-    GetActiveCouponPoliciesUseCase {
+    private val couponPolicyPort: CouponPolicyPort,
+    private val couponTypePort: CouponTypePort
+) {
 
-    override fun createCouponPolicy(command: CreateCouponPolicyCommand): CouponPolicy {
-        // 중복 이름 검증
-        if (couponPolicyPort.existsByName(command.name)) {
-            throw IllegalArgumentException("Coupon policy name already exists: ${command.name}")
+    @Transactional
+    fun createCouponPolicy(
+        couponTypeId: Int,
+        name: String,
+        discountType: DiscountType,
+        discountRate: Double = 0.0,
+        discountAmount: Int = 0,
+        period: Int,
+        standardPrice: Int,
+        maxDiscountAmount: Int,
+        startDate: LocalDate,
+        endDate: LocalDate
+    ): CouponPolicy {
+        // 정책명 중복 확인
+        require(!couponPolicyPort.existsByName(name)) {
+            "Coupon policy name already exists: $name"
         }
 
-        // 도메인 객체 생성
-        val policy = CouponPolicy.create(
-            couponTypeId = command.couponTypeId,
-            name = command.name,
-            discountType = command.discountType,
-            discountRate = command.discountRate,
-            discountAmount = command.discountAmount,
-            period = command.period,
-            standardPrice = command.standardPrice,
-            maxDiscountAmount = command.maxDiscountAmount,
-            startDate = command.startDate,
-            endDate = command.endDate
+        val couponType = couponTypePort.findById(CouponTypeId(couponTypeId))
+            ?: throw IllegalArgumentException("CouponType not found: $couponTypeId")
+
+        val couponPolicy = CouponPolicy.create(
+            couponType = couponType,
+            name = name,
+            discountType = discountType,
+            discountRate = discountRate,
+            discountAmount = discountAmount,
+            period = period,
+            standardPrice = standardPrice,
+            maxDiscountAmount = maxDiscountAmount,
+            startDate = startDate,
+            endDate = endDate
         )
 
-        return couponPolicyPort.save(policy)
+        return couponPolicyPort.save(couponPolicy)
     }
 
-    override fun updateEndDate(command: UpdateEndDateCommand): CouponPolicy {
-        val policy = couponPolicyPort.findById(command.policyId)
-            ?: throw IllegalArgumentException("Policy not found: ${command.policyId}")
-
-        val updatedPolicy = policy.changeEndDate(command.newEndDate)
-        return couponPolicyPort.save(updatedPolicy)
-    }
-
-    @Transactional(readOnly = true)
-    override fun getActivePolicies(): List<CouponPolicy> {
+    fun getActivePolicies(): List<CouponPolicy> {
         return couponPolicyPort.findActivePolicies()
     }
 
-    override fun deleteCouponPolicy(command: DeleteCouponPolicyCommand) {
-        val policy = couponPolicyPort.findById(command.policyId)
-            ?: throw IllegalArgumentException("Policy not found: ${command.policyId}")
+    fun getApplicablePolicies(orderAmount: Int): List<CouponPolicy> {
+        return couponPolicyPort.findApplicablePolicies(orderAmount)
+            .filter { it.canApplyTo(orderAmount) }
+    }
 
-        val deletedPolicy = policy.delete()
-        couponPolicyPort.save(deletedPolicy)
+    fun calculateBestDiscount(orderAmount: Int): CouponPolicy? {
+        return getApplicablePolicies(orderAmount)
+            .maxByOrNull { it.calculateDiscount(orderAmount) }
+    }
+
+    @Transactional
+    fun extendPolicyEndDate(policyId: Int, newEndDate: LocalDate): CouponPolicy {
+        val policy = couponPolicyPort.findById(CouponPolicyId(policyId))
+            ?: throw IllegalArgumentException("CouponPolicy not found: $policyId")
+
+        val updated = policy.changeEndDate(newEndDate)
+        return couponPolicyPort.save(updated)
+    }
+
+    @Transactional
+    fun deleteCouponPolicy(policyId: Int) {
+        val policy = couponPolicyPort.findById(CouponPolicyId(policyId))
+            ?: throw IllegalArgumentException("CouponPolicy not found: $policyId")
+
+        couponPolicyPort.delete(policy)
     }
 }

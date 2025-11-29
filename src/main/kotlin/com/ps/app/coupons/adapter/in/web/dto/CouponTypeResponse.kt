@@ -10,7 +10,7 @@ data class CouponTypeResponse(
     companion object {
         fun from(couponType: CouponType): CouponTypeResponse {
             return CouponTypeResponse(
-                id = couponType.id,
+                id = couponType.id.value,
                 name = couponType.name
             )
         }

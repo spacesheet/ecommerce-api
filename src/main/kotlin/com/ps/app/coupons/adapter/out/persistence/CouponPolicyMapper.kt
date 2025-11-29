@@ -1,17 +1,18 @@
 package com.ps.app.coupons.adapter.out.persistence
 
 import com.ps.app.coupons.domain.CouponPolicy
-import com.ps.app.coupons.domain.constant.DiscountType
+import com.ps.app.coupons.domain.CouponPolicyId
 
 object CouponPolicyMapper {
 
     fun toDomain(entity: CouponPolicyEntity): CouponPolicy {
+        val couponType = CouponTypeMapper.toDomain(entity.couponType)
+
         return CouponPolicy(
-            id = entity.id,
-            couponTypeId = entity.couponType.id
-                ?: throw IllegalStateException("CouponType id cannot be null"),
+            id = CouponPolicyId(entity.id),
+            couponType = couponType,
             name = entity.name,
-            discountType = DiscountType.valueOf(entity.discountType),
+            discountType = entity.discountType,
             discountRate = entity.discountRate,
             discountAmount = entity.discountAmount,
             period = entity.period,
@@ -25,13 +26,13 @@ object CouponPolicyMapper {
 
     fun toEntity(
         domain: CouponPolicy,
-        couponType: CouponTypeEntity
+        couponTypeEntity: CouponTypeEntity
     ): CouponPolicyEntity {
         return CouponPolicyEntity(
-            id = domain.id,
-            couponType = couponType,
+            id = domain.id.value,
+            couponType = couponTypeEntity,
             name = domain.name,
-            discountType = domain.discountType.name,
+            discountType = domain.discountType,
             discountRate = domain.discountRate,
             discountAmount = domain.discountAmount,
             period = domain.period,
@@ -41,5 +42,19 @@ object CouponPolicyMapper {
             endDate = domain.endDate,
             deleted = domain.deleted
         )
+    }
+
+    fun toDomainList(entities: List<CouponPolicyEntity>): List<CouponPolicy> {
+        return entities.map { toDomain(it) }
+    }
+
+    fun toDomainSafe(entity: CouponPolicyEntity?): CouponPolicy? {
+        return entity?.let {
+            runCatching {
+                toDomain(it)
+            }.onFailure { error ->
+                println("Failed to map CouponPolicy ${entity.id}: ${error.message}")
+            }.getOrNull()
+        }
     }
 }

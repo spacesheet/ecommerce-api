@@ -59,34 +59,4 @@ class ProductEntity(
 
     @LastModifiedDate
     val updateAt: LocalDateTime = LocalDateTime.now()
-) {
-//    fun toDomain(): Product = Product(
-//        id = id,
-//        stock = stock,
-//        productName = productName,
-//        description = description,
-//        price = price,
-//        forwardDate = forwardDate,
-//        score = score,
-//        thumbnailPath = thumbnailPath,
-//        stockStatus = stockStatus,
-//        category = category.toDomain()
-//    )
-//
-//    companion object {
-//        fun fromDomain(domain: Product, categoryEntity: CategoryEntity): ProductEntity {
-//            return ProductEntity(
-//                id = domain.id,
-//                stock = domain.stock,
-//                productName = domain.productName,
-//                description = domain.description,
-//                price = domain.price,
-//                forwardDate = domain.forwardDate,
-//                score = domain.score,
-//                thumbnailPath = domain.thumbnailPath,
-//                stockStatus = domain.stockStatus,
-//                category = categoryEntity
-//            )
-//        }
-//    }
-}
+)

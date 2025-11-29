@@ -1,5 +1,6 @@
 package com.ps.app.coupons.adapter.out.persistence
 
+import com.ps.app.coupons.domain.CategoryCoupon
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param

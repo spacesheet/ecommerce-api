@@ -1,64 +1,75 @@
 package com.ps.app.coupons.adapter.out.persistence
 
-import com.ps.app.user.adapter.out.persistence.UserEntity
+import com.ps.app.coupons.domain.CouponsId
+import com.ps.app.coupons.domain.constant.CouponStatus
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDate
 
 @Entity
-@Table(name = "coupon")
-open class CouponsEntity(
+@Table(
+    name = "coupons",
+    indexes = [
+        Index(name = "idx_coupons_owner_id", columnList = "owner_id"),
+        Index(name = "idx_coupons_policy_id", columnList = "coupon_policy_id"),
+        Index(name = "idx_coupons_code", columnList = "coupon_code", unique = true),
+        Index(name = "idx_coupons_status", columnList = "status"),
+        Index(name = "idx_coupons_expire_date", columnList = "expire_date")
+    ]
+)
+@EntityListeners(AuditingEntityListener::class)
+class CouponsEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    val id: Long,
 
-    @NotNull
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    val owner: UserEntity,
+    @Column(name = "owner_id", nullable = false)
+    val ownerId: Long,
 
-    @NotNull
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_policy_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_policy_id", nullable = false)
     val couponPolicy: CouponPolicyEntity,
 
-    @NotNull
-    @Column(unique = true, length = 20)
+    @Column(name = "coupon_code", nullable = false, unique = true, length = 50)
     val couponCode: String,
 
-    @NotNull
-    @Column(name = "create_date")
-    val createDate: LocalDate,
+    @CreatedDate
+    @Column(name = "create_date", nullable = false, updatable = false)
+    val createDate: LocalDate = LocalDate.now(),
 
-    @NotNull
-    @Column(name = "expire_date")
+    @Column(name = "expire_date", nullable = false)
     val expireDate: LocalDate,
 
-    @NotNull
+    @Column(nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
-    var status: String
+    var couponStatus: CouponStatus
 ) {
-    protected constructor() : this(
-        null,
-        UserEntity(
-            id = TODO(),
-            loginId = TODO(),
-            contactNumber = TODO(),
-            name = TODO(),
-            email = TODO(),
-            password = TODO(),
-            birthday = TODO(),
-            createAt = TODO(),
-            lastLoginAt = TODO(),
-            status = TODO(),
-            modifyAt = TODO(),
-            isAdmin = TODO()
-        ),
-        CouponPolicyEntity(),
-        "",
-        LocalDate.now(),
-        LocalDate.now(),
-        ""
-    )
+    fun use() {
+        require(couponStatus == CouponStatus.AVAILABLE) { "Only available coupons can be used" }
+        require(!isExpired()) { "Cannot use expired coupon" }
+        this.couponStatus = CouponStatus.USED
+    }
+
+    fun cancel() {
+        require(couponStatus == CouponStatus.USED) { "Only used coupons can be cancelled" }
+        this.couponStatus = CouponStatus.AVAILABLE
+    }
+
+    fun expire() {
+        require(couponStatus == CouponStatus.AVAILABLE) { "Only available coupons can be expired" }
+        this.couponStatus = CouponStatus.EXPIRED
+    }
+
+    fun isExpired(): Boolean {
+        return LocalDate.now().isAfter(expireDate)
+    }
+
+    fun isAvailable(): Boolean {
+        return couponStatus == CouponStatus.AVAILABLE && !isExpired()
+    }
+
+    fun isCurrentlyActive(): Boolean {
+        return isAvailable() && couponPolicy.isActive()
+    }
 }

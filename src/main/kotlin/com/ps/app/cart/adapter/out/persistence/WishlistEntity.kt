@@ -26,9 +26,9 @@ class WishlistEntity(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    val user: UserEntity,
+    val user: UserEntity?,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    val product: ProductEntity
+    val product: ProductEntity?
 )

@@ -23,9 +23,9 @@ data class CouponSummaryResponse(
             } else null
 
             return CouponSummaryResponse(
-                id = coupons.id,
+                id = coupons.id.value,
                 couponCode = coupons.couponCode,
-                status = coupons.status,
+                status = coupons.couponStatus,
                 daysUntilExpiration = daysUntilExpiration
             )
         }

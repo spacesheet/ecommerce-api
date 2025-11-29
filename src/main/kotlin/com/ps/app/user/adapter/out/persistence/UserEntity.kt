@@ -1,5 +1,6 @@
 package com.ps.app.user.adapter.out.persistence
 
+import com.ps.app.user.domain.UserId
 import com.ps.app.user.domain.constant.UserStatus
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
@@ -15,7 +16,7 @@ import java.time.LocalDateTime
 class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null,
+    var id: UserId = null,
 
     @Column(name = "login_id", unique = true, length = 50, nullable = false)
     var loginId: String,

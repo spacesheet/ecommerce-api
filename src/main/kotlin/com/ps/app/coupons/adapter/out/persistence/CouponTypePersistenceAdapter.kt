@@ -2,6 +2,7 @@ package com.ps.app.coupons.adapter.out.persistence
 
 import com.ps.app.coupons.application.port.out.CouponTypePort
 import com.ps.app.coupons.domain.CouponType
+import com.ps.app.coupons.domain.CouponTypeId
 import com.ps.app.coupons.domain.constant.CouponScope
 import org.springframework.stereotype.Component
 
@@ -14,8 +15,8 @@ class CouponTypePersistenceAdapter(
     private val couponTypeRepository: CouponTypeJpaRepository
 ) : CouponTypePort {
 
-    override fun findById(id: Int): CouponType? {
-        return couponTypeRepository.findById(id)
+    override fun findById(id: CouponTypeId): CouponType? {
+        return couponTypeRepository.findById(id.value)
             .map { CouponTypeMapper.toDomain(it) }
             .orElse(null)
     }

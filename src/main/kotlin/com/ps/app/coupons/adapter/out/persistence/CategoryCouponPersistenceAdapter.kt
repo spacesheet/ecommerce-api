@@ -2,6 +2,9 @@ package com.ps.app.coupons.adapter.out.persistence
 
 import com.ps.app.coupons.application.port.out.CategoryCouponPort
 import com.ps.app.coupons.domain.CategoryCoupon
+import com.ps.app.coupons.domain.CategoryCouponId
+import com.ps.app.coupons.domain.CouponPolicyId
+import com.ps.app.products.domain.CategoryId
 import org.springframework.stereotype.Component
 
 /**
@@ -14,31 +17,38 @@ class CategoryCouponPersistenceAdapter(
     private val couponPolicyRepository: CouponPolicyJpaRepository
 ) : CategoryCouponPort {
 
-    override fun findById(id: Int): CategoryCoupon? {
-        return categoryCouponRepository.findById(id)
+    override fun findById(id: CategoryCouponId): CategoryCoupon? {
+        return categoryCouponRepository.findById(id.value)
             .map { CategoryCouponMapper.toDomain(it) }
             .orElse(null)
     }
 
-    override fun findByCouponPolicyId(couponPolicyId: Int): List<CategoryCoupon> {
-        return categoryCouponRepository.findByCouponPolicyId(couponPolicyId)
+    override fun findByCouponPolicyId(policyId: CouponPolicyId): List<CategoryCoupon> {
+        return categoryCouponRepository.findByCouponPolicyId(policyId.value)
             .map { CategoryCouponMapper.toDomain(it) }
     }
 
-    override fun findByCategoryId(categoryId: Int): List<CategoryCoupon> {
-        return categoryCouponRepository.findByCategoryId(categoryId)
+    override fun findByCategoryId(categoryId: CategoryId): List<CategoryCoupon> {
+        return categoryCouponRepository.findByCategoryId(categoryId.value)
             .map { CategoryCouponMapper.toDomain(it) }
     }
 
-    override fun findAll(): List<CategoryCoupon> {
+    override fun findByCouponPolicyIdAndCategoryId(
+        policyId: CouponPolicyId,
+        categoryId: CategoryId
+    ): CategoryCoupon? {
+        TODO("Not yet implemented")
+    }
+
+    fun findAll(): List<CategoryCoupon> {
         return categoryCouponRepository.findAll()
             .map { CategoryCouponMapper.toDomain(it) }
     }
 
     override fun save(categoryCoupon: CategoryCoupon): CategoryCoupon {
-        val couponPolicy = couponPolicyRepository.findById(categoryCoupon.couponPolicyId)
+        val couponPolicy = couponPolicyRepository.findById(categoryCoupon.id.value)
             .orElseThrow {
-                IllegalArgumentException("CouponPolicy not found: ${categoryCoupon.couponPolicyId}")
+                IllegalArgumentException("CouponPolicy not found: ${categoryCoupon.id.value}")
             }
 
         val entity = CategoryCouponMapper.toEntity(categoryCoupon, couponPolicy)
@@ -46,17 +56,18 @@ class CategoryCouponPersistenceAdapter(
         return CategoryCouponMapper.toDomain(savedEntity)
     }
 
-    override fun delete(id: Int) {
-        categoryCouponRepository.deleteById(id)
+    override fun delete(categoryCoupon: CategoryCoupon) {
+        categoryCouponRepository.deleteById(categoryCoupon.id.value)
     }
 
-    override fun existsByCouponPolicyIdAndCategoryId(
-        couponPolicyId: Int,
-        categoryId: Int
-    ): Boolean {
+    override fun deleteById(id: CategoryCouponId) {
+        categoryCouponRepository.deleteById(id.value)
+    }
+
+    override fun existsByCouponPolicyIdAndCategoryId(policyId: CouponPolicyId, categoryId: CategoryId): Boolean {
         return categoryCouponRepository.existsByCouponPolicyIdAndCategoryId(
-            couponPolicyId,
-            categoryId
+            policyId.value,
+            categoryId.value
         )
     }
 }

@@ -10,7 +10,7 @@ class UserAuthPersistenceAdapter(
     private val userAuthJpaRepository: UserAuthJpaRepository
 ) : LoadUserAuthPort, SaveUserAuthPort, DeleteUserAuthPort {
 
-    override fun findById(id: Long): UserAuth? {
+    override fun findById(id: UserId): UserAuth? {
         return userAuthJpaRepository.findById(id.value)
             .map { UserAuthPersistenceMapper.mapToDomain(it) }
             .orElse(null)

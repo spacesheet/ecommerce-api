@@ -4,17 +4,20 @@ import com.ps.app.coupons.domain.constant.CouponStatus
 
 import com.ps.app.coupons.adapter.`in`.web.dto.*
 import com.ps.app.coupons.application.port.`in`.*
+import com.ps.app.coupons.application.service.CouponService
 import com.ps.app.coupons.application.usecases.GetAvailableCouponsUseCase
 import com.ps.app.coupons.application.usecases.GetCouponByCodeUseCase
 import com.ps.app.coupons.application.usecases.GetUserCouponsUseCase
 import com.ps.app.coupons.application.usecases.IssueCouponUseCase
 import com.ps.app.coupons.application.usecases.UseCouponUseCase
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/coupons")
 class CouponController(
+    private val couponService: CouponService,
     private val useCouponUseCase: UseCouponUseCase,
     private val getAvailableCouponsUseCase: GetAvailableCouponsUseCase,
     private val issueCouponUseCase: IssueCouponUseCase,
@@ -96,5 +99,18 @@ class CouponController(
         )
         return getUserCouponsUseCase.getUserCoupons(query)
             .map { CouponResponse.from(it) }
+    }
+
+    @GetMapping("/applicable")
+    fun getApplicable(
+        @RequestParam userId: Long,
+        @RequestParam productId: Long,
+        @RequestParam categoryId: Int,
+        @RequestParam orderAmount: Int
+    ): ResponseEntity<List<CouponResponse>> {
+        val coupons = couponService.getApplicableCouponsForProduct(
+            userId, orderAmount, productId, categoryId
+        )
+        return ResponseEntity.ok(coupons.map { CouponResponse.from(it) })
     }
 }

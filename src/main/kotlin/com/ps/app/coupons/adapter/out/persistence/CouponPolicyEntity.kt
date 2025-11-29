@@ -1,78 +1,72 @@
 package com.ps.app.coupons.adapter.out.persistence
 
+import com.ps.app.coupons.domain.constant.DiscountType
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.ColumnDefault
 import java.time.LocalDate
 
 @Entity
-@Table(name = "coupon_policy")
+@Table(
+    name = "coupon_policy",
+    indexes = [
+        Index(name = "idx_coupon_policy_type_id", columnList = "coupon_type_id"),
+        Index(name = "idx_coupon_policy_dates", columnList = "start_date, end_date"),
+        Index(name = "idx_coupon_policy_deleted", columnList = "deleted")
+    ]
+)
 class CouponPolicyEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int? = null,
+    val id: Int = 0,
 
-    @NotNull
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_type_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_type_id", nullable = false)
     val couponType: CouponTypeEntity,
 
-    @NotNull
-    @Column(length = 30)
+    @Column(nullable = false, length = 30)
     val name: String,
 
-    @NotNull
+    @Column(name = "discount_type", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
-    @Column(name = "discount_type", length = 20)
-    val discountType: String,
+    val discountType: DiscountType,
 
-    @NotNull
-    @ColumnDefault("0")
-    @Column(name = "discount_rate")
+    @Column(name = "discount_rate", nullable = false)
     val discountRate: Double,
 
-    @NotNull
-    @ColumnDefault("0")
-    @Column(name = "discount_amount")
+    @Column(name = "discount_amount", nullable = false)
     val discountAmount: Int,
 
-    @NotNull
-    @Column(name = "period")
+    @Column(nullable = false)
     val period: Int,
 
-    @NotNull
-    @Column(name = "standard_price")
+    @Column(name = "standard_price", nullable = false)
     val standardPrice: Int,
 
-    @NotNull
-    @Column(name = "max_discount_amount")
+    @Column(name = "max_discount_amount", nullable = false)
     val maxDiscountAmount: Int,
 
-    @NotNull
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     val startDate: LocalDate,
 
-    @NotNull
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     var endDate: LocalDate,
 
-    @NotNull
-    @ColumnDefault("false")
-    @Column(name = "deleted")
-    var deleted: Boolean
+    @Column(nullable = false)
+    var deleted: Boolean = false,
+
+    @Column(nullable = false)
+    var isActive: Boolean = true
 ) {
-    constructor() : this(
-        null,
-        CouponTypeEntity(),
-        "",
-        "",
-        0.0,
-        0,
-        0,
-        0,
-        0,
-        LocalDate.now(),
-        LocalDate.now(),
-        false
-    )
+    fun changeEndDate(newEndDate: LocalDate) {
+        require(newEndDate >= startDate) { "End date must be after or equal to start date" }
+        this.endDate = newEndDate
+    }
+
+    fun delete() {
+        this.deleted = true
+    }
+
+    fun isActive(): Boolean {
+        val now = LocalDate.now()
+        return !deleted && now >= startDate && now <= endDate
+    }
 }

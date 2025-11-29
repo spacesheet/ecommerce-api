@@ -1,40 +1,68 @@
 package com.ps.app.coupons.domain
 
+import com.ps.app.products.domain.CategoryId
+
 /**
  * 카테고리 쿠폰 도메인 모델
- * 특정 카테고리에만 적용 가능한 쿠폰
+ * CouponScope.CATEGORY 또는 CouponScope.BOOK 타입 쿠폰에 사용
  */
 data class CategoryCoupon(
-    val id: Int? = null,
-    val couponPolicyId: Int,
-    val categoryId: Int
+    val id: CategoryCouponId = CategoryCouponId.NEW,
+    val couponPolicy: CouponPolicy,
+    val categoryId: CategoryId
 ) {
     init {
-        require(categoryId > 0) { "Category ID must be positive" }
-    }
-
-    /**
-     * 특정 카테고리에 적용 가능한지 확인
-     */
-    fun isApplicableToCategory(targetCategoryId: Int): Boolean {
-        return this.categoryId == targetCategoryId
+        // CATEGORY 또는 BOOK 타입만 카테고리 쿠폰 가능
+        require(couponPolicy.couponType.requiresCategoryRestriction()) {
+            "CategoryCoupon can only be created with CATEGORY or BOOK coupon type"
+        }
     }
 
     companion object {
-        /**
-         * 카테고리 쿠폰 생성
-         */
         fun create(
-            couponPolicyId: Int,
-            categoryId: Int
+            couponPolicy: CouponPolicy,
+            categoryId: CategoryId
         ): CategoryCoupon {
-            require(couponPolicyId > 0) { "Coupon policy ID must be positive" }
-            require(categoryId > 0) { "Category ID must be positive" }
-
             return CategoryCoupon(
-                couponPolicyId = couponPolicyId,
+                id = CategoryCouponId.NEW,
+                couponPolicy = couponPolicy,
                 categoryId = categoryId
             )
         }
+
+        /**
+         * 도서 쿠폰 생성 (특정 카테고리 ID 사용)
+         */
+        fun createBookCoupon(
+            couponPolicy: CouponPolicy,
+            bookCategoryId: CategoryId
+        ): CategoryCoupon {
+            require(couponPolicy.couponType.isBook()) {
+                "Policy must have BOOK coupon type"
+            }
+
+            return CategoryCoupon(
+                id = CategoryCouponId.NEW,
+                couponPolicy = couponPolicy,
+                categoryId = bookCategoryId
+            )
+        }
     }
+
+    fun isNew(): Boolean = id.isNew()
+
+    fun isApplicableToCategory(targetCategoryId: CategoryId): Boolean {
+        return categoryId == targetCategoryId
+    }
+
+    fun isApplicableToCategory(targetCategoryId: Int): Boolean {
+        return categoryId.value == targetCategoryId
+    }
+
+    fun isActive(): Boolean = couponPolicy.isActive()
+
+    fun isBookCoupon(): Boolean = couponPolicy.couponType.isBook()
+
+    fun isCategoryCoupon(): Boolean = couponPolicy.couponType.isCategory()
 }
+

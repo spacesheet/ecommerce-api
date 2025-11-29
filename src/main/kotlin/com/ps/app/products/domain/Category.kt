@@ -1,7 +1,7 @@
 package com.ps.app.products.domain
 
 class Category(
-    val id: Int = 0,
+    val id: CategoryId = 0,
     val name: String,
     val parentCategory: Category? = null,
     subCategories: List<Category> = emptyList()

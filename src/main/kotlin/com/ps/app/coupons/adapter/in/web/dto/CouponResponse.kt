@@ -11,7 +11,7 @@ import java.time.LocalDate
 data class CouponResponse(
     val id: Long?,
     val ownerId: Long,
-    val couponPolicyId: Long,
+    val couponPolicyId: Int,
     val couponCode: String,
     val createDate: LocalDate,
     val expireDate: LocalDate,
@@ -25,13 +25,13 @@ data class CouponResponse(
          */
         fun from(coupons: Coupons): CouponResponse {
             return CouponResponse(
-                id = coupons.id,
-                ownerId = coupons.ownerId,
-                couponPolicyId = coupons.couponPolicyId,
+                id = coupons.id.value,
+                ownerId = coupons.ownerId.value,
+                couponPolicyId = coupons.couponPolicy.id.value,
                 couponCode = coupons.couponCode,
                 createDate = coupons.createDate,
                 expireDate = coupons.expireDate,
-                status = coupons.status,
+                status = coupons.couponStatus,
                 isExpired = coupons.isExpired(),
                 isAvailable = coupons.isAvailable()
             )

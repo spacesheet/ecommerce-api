@@ -6,6 +6,7 @@ import com.ps.app.coupons.application.port.out.CouponTypePort
 import com.ps.app.coupons.application.usecases.CreateCouponTypeUseCase
 import com.ps.app.coupons.application.usecases.GetCouponTypeUseCase
 import com.ps.app.coupons.domain.CouponType
+import com.ps.app.coupons.domain.CouponTypeId
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -20,7 +21,7 @@ class CouponTypeService(
     override fun getCouponType(query: GetCouponTypeQuery): CouponType {
         return when {
             query.id != null -> {
-                couponTypePort.findById(query.id)
+                couponTypePort.findById(CouponTypeId(query.id))
                     ?: throw IllegalArgumentException("CouponType not found: ${query.id}")
             }
             query.scope != null -> {

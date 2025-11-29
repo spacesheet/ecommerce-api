@@ -1,10 +1,13 @@
 package com.ps.app.orders.adapter.out.persistence
 
+import com.ps.app.infrastructure.persistence.entity.OrderDetailEntity
+import com.ps.app.orders.domain.OrderStatus
 import com.ps.app.user.adapter.out.persistence.UserEntity
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "orders")
@@ -69,11 +72,14 @@ class OrdersEntity(
 
     var deductedCouponPrice: Int? = null,
 
-    @field:NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_status_id", nullable = false)
-    var orderStatus: OrderStatusEntity,
+    var orderStatus: OrderStatus,
 
     @OneToMany(mappedBy = "order", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var details: MutableList<OrderDetailEntity> = mutableListOf()
+    var details: MutableList<OrderDetailEntity> = mutableListOf(),
+
+    @Column(name = "create_at", nullable = false, updatable = false)
+    val createAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "update_at", nullable = false)
+    var updateAt: LocalDateTime = LocalDateTime.now()
 )

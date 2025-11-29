@@ -18,8 +18,8 @@ class ReviewPersistenceAdapter(
 
     override fun save(review: Review): Review {
         val entity = if (review.isNew()) {
-            val orderDetailEntity = orderDetailRepository.findById(review.orderDetail?.id?.value)
-                .orElseThrow { IllegalArgumentException("OrderDetail not found: ${review.orderDetail.id}") }
+            val orderDetailEntity = orderDetailRepository.findById(review.orderDetail?.id)
+                .orElseThrow { IllegalArgumentException("OrderDetail not found: ${review.orderDetail?.id}") }
 
             ReviewMapper.toEntity(review, orderDetailEntity)
         } else {

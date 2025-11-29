@@ -1,6 +1,6 @@
 package com.ps.app.review.adapter.out.persistence
 
-import com.ps.app.orders.adapter.out.persistence.OrderDetailEntity
+import com.ps.app.infrastructure.persistence.entity.OrderDetailEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -9,7 +9,7 @@ import java.time.LocalDateTime
     name = "review",
     indexes = [
         Index(name = "idx_review_order_detail_id", columnList = "order_detail_id"),
-        Index(name = "idx_review_created_at", columnList = "review_created_at")
+        Index(name = "idx_review_create_at", columnList = "review_create_at")
     ]
 )
 class ReviewEntity(
@@ -27,7 +27,7 @@ class ReviewEntity(
     var reviewScore: Int,
 
     @Column(nullable = false)
-    val reviewCreatedAt: LocalDateTime = LocalDateTime.now(),
+    val reviewCreateAt: LocalDateTime = LocalDateTime.now(),
 
     // ⭐ OrderDetail 연관관계 - 이 필드가 있어야 함
     @OneToOne(fetch = FetchType.LAZY)

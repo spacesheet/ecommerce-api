@@ -10,17 +10,14 @@ import org.slf4j.LoggerFactory
 class OrdersPersistenceAdapter(
     private val orderJpaRepository: OrderJpaRepository,
     private val userJpaRepository: UserJpaRepository,
-    private val orderStatusJpaRepository: OrderStatusJpaRepository
 ) : OrdersPort {
 
     private val logger = LoggerFactory.getLogger(OrdersPersistenceAdapter::class.java)
 
     override fun save(order: Orders): Orders {
         val userEntity = order.userId?.let { userJpaRepository.findById(it).orElse(null) }
-        val orderStatusEntity = orderStatusJpaRepository.findById(order.orderStatus.id)
-            .orElseThrow { IllegalArgumentException("OrderStatus not found: ${order.orderStatus.id}") }
 
-        val entity = OrdersMapper.toEntity(order, userEntity, orderStatusEntity)
+        val entity = OrdersMapper.toEntity(order, userEntity, order.orderStatus)
         val savedEntity = orderJpaRepository.save(entity)
 
         return OrdersMapper.toDomain(savedEntity)

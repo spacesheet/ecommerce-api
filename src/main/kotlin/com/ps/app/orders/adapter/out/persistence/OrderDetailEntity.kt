@@ -1,5 +1,8 @@
-package com.ps.app.orders.adapter.out.persistence
+package com.ps.app.infrastructure.persistence.entity
 
+import com.ps.app.orders.adapter.out.persistence.OrdersEntity
+import com.ps.app.orders.adapter.out.persistence.WrappingEntity
+import com.ps.app.orders.domain.OrderDetailId
 import com.ps.app.orders.domain.OrderStatus
 import com.ps.app.products.adapter.out.persistence.ProductEntity
 import jakarta.persistence.*
@@ -12,13 +15,13 @@ import java.time.LocalDateTime
         Index(name = "idx_order_detail_order_id", columnList = "order_id"),
         Index(name = "idx_order_detail_product_id", columnList = "product_id"),
         Index(name = "idx_order_detail_status", columnList = "status"),
-        Index(name = "idx_order_detail_created_at", columnList = "created_at")
+        Index(name = "idx_order_detail_create_at", columnList = "create_at")
     ]
 )
 class OrderDetailEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    val id: OrderDetailId,
 
     @Column(nullable = false)
     var price: Int,
@@ -46,10 +49,10 @@ class OrderDetailEntity(
     @JoinColumn(name = "order_id", nullable = false)
     val order: OrdersEntity,
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "create_at", nullable = false, updatable = false)
     val createAt: LocalDateTime = LocalDateTime.now(),
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "update_at", nullable = false)
     var updateAt: LocalDateTime = LocalDateTime.now()
 ) {
     @PreUpdate

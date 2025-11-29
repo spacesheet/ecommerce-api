@@ -35,7 +35,7 @@ class UserEntity(
     @Column(nullable = false)
     var birthday: LocalDate,
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "create_at", nullable = false)
     var createAt: LocalDateTime,
 
     @Column(name = "last_login_at")

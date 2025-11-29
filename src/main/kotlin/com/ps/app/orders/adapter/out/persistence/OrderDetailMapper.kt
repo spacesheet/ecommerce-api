@@ -1,24 +1,34 @@
 package com.ps.app.orders.adapter.out.persistence
 
+import com.ps.app.infrastructure.persistence.entity.OrderDetailEntity
 import com.ps.app.orders.domain.OrderDetail
+import com.ps.app.orders.domain.OrderDetailId
 import com.ps.app.products.adapter.out.persistence.ProductEntity
-
+import com.ps.app.products.adapter.out.persistence.ProductMapper
 
 object OrderDetailMapper {
-    fun toDomain(entity: OrderDetailEntity): OrderDetail? {
-        val product = entity.product ?: return null
-        val order = entity.order ?: return null
-        val orderStatus = entity.orderStatus ?: return null
+
+    fun toDomain(entity: OrderDetailEntity): OrderDetail {
+        // Product 변환
+        val product = ProductMapper.toDomain(entity.product)
+
+        // Order 변환 (순환 참조 방지를 위해 간단한 정보만)
+        val order = OrdersMapper.toDomainWithoutDetails(entity.order)
+
+        // Wrapping 변환
+        val wrapping = entity.wrapping?.let { wrappingEntity ->
+            WrappingMapper.toDomain(wrappingEntity)
+        }
 
         return OrderDetail(
-            id = entity.id,
+            id = OrderDetailId(entity.id.value),
             price = entity.price,
             quantity = entity.quantity,
             wrap = entity.wrap,
-            orderStatus = OrderStatusMapper.toDomain(orderStatus),
-            wrapping = entity.wrapping?.let { WrappingMapper.toDomain(it) },
-            productId = product.id,
-            orderId = order.id,
+            orderStatus = entity.orderStatus,
+            wrapping = wrapping,
+            product = product,
+            order = order,
             createAt = entity.createAt,
             updateAt = entity.updateAt
         )
@@ -26,22 +36,31 @@ object OrderDetailMapper {
 
     fun toEntity(
         domain: OrderDetail,
-        orderStatusEntity: OrderStatusEntity,
-        wrappingEntity: WrappingEntity?,
+        orderEntity: OrdersEntity,
         productEntity: ProductEntity,
-        orderEntity: OrdersEntity
+        wrappingEntity: WrappingEntity?
     ): OrderDetailEntity {
         return OrderDetailEntity(
             id = domain.id,
             price = domain.price,
             quantity = domain.quantity,
             wrap = domain.wrap,
-            orderStatus = orderStatusEntity,
+            orderStatus = domain.orderStatus,
             wrapping = wrappingEntity,
             product = productEntity,
             order = orderEntity,
             createAt = domain.createAt,
             updateAt = domain.updateAt
         )
+    }
+
+    fun toDomainList(entities: List<OrderDetailEntity>): List<OrderDetail> {
+        return entities.mapNotNull { entity ->
+            runCatching {
+                toDomain(entity)
+            }.onFailure { error ->
+                println("Failed to map OrderDetail ${entity.id}: ${error.message}")
+            }.getOrNull()
+        }
     }
 }

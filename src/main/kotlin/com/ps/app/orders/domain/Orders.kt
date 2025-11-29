@@ -2,6 +2,7 @@ package com.ps.app.orders.domain
 
 import com.ps.app.user.domain.UserId
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class Orders(
     val id: OrderId,
@@ -24,7 +25,9 @@ data class Orders(
     val earnedPoints: Int?,
     val deductedCouponPrice: Int?,
     val orderStatus: OrderStatus,
-    val details: List<OrderDetail> = emptyList()
+    val details: List<OrderDetail> = emptyList(),
+    val createAt: LocalDateTime,
+    val updateAt: LocalDateTime,
 ) {
     fun changeOrderStatus(newStatus: OrderStatus): Orders {
         return copy(orderStatus = newStatus)
@@ -60,7 +63,9 @@ data class Orders(
             couponCode: String? = null,
             deliveryRate: Int = 0,
             deductedPoints: Int? = null,
-            deductedCouponPrice: Int? = null
+            deductedCouponPrice: Int? = null,
+            createAt: LocalDateTime,
+            updateAt: LocalDateTime
         ): Orders {
             return Orders(
                 id = id,
@@ -82,7 +87,9 @@ data class Orders(
                 deductedPoints = deductedPoints,
                 earnedPoints = null,
                 deductedCouponPrice = deductedCouponPrice,
-                orderStatus = orderStatus
+                orderStatus = orderStatus,
+                createAt = LocalDateTime.now(),
+                updateAt = LocalDateTime.now()
             )
         }
     }

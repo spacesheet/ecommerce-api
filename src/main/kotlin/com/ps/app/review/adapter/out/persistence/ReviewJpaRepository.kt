@@ -12,32 +12,36 @@ interface ReviewJpaRepository : JpaRepository<ReviewEntity, Int> {
     fun existsByOrderDetailId(orderDetailId: Long): Boolean
 
     @Query("""
-        SELECT r FROM ReviewEntity r
-        JOIN FETCH r.orderDetail od
-        JOIN FETCH od.product p
-        JOIN FETCH od.order o
-        JOIN FETCH o.user
-        WHERE p.id = :productId
-        ORDER BY r.reviewCreatedAt DESC
+    SELECT r FROM ReviewEntity r
+    JOIN FETCH r.orderDetail od
+    JOIN FETCH od.product p
+    JOIN FETCH od.order o
+    JOIN FETCH o.user
+    WHERE p.id = :productId
+    ORDER BY r.reviewCreateAt DESC
     """)
     fun findByProductIdWithDetails(@Param("productId") productId: Long): List<ReviewEntity>
 
-    @Query("""
+    @Query(
+        """
         SELECT r FROM ReviewEntity r
         JOIN FETCH r.orderDetail od
         JOIN FETCH od.order o
         WHERE o.user.id = :userId
-        ORDER BY r.reviewCreatedAt DESC
-    """)
+        ORDER BY r.reviewCreateAt DESC
+    """
+    )
     fun findByUserIdWithDetails(@Param("userId") userId: Long): List<ReviewEntity>
 
-    @Query("""
+    @Query(
+        """
         SELECT r FROM ReviewEntity r
         JOIN FETCH r.orderDetail od
         JOIN FETCH od.product p
         WHERE p.id = :productId AND r.picturePath IS NOT NULL
-        ORDER BY r.reviewCreatedAt DESC
-    """)
+        ORDER BY r.reviewCreateAt DESC
+    """
+    )
     fun findPhotoReviewsByProductId(@Param("productId") productId: Long): List<ReviewEntity>
 
     @Query("""

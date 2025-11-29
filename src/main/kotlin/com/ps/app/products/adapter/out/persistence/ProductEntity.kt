@@ -55,10 +55,10 @@ class ProductEntity(
     val discountRate: Double? = null,
 
     @CreatedDate
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createAt: LocalDateTime = LocalDateTime.now(),
 
     @LastModifiedDate
-    val updatedAt: LocalDateTime = LocalDateTime.now()
+    val updateAt: LocalDateTime = LocalDateTime.now()
 ) {
 //    fun toDomain(): Product = Product(
 //        id = id,

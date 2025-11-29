@@ -1,17 +1,42 @@
 package com.ps.app.orders.adapter.out.persistence
 
+import com.ps.app.orders.domain.Order
+import com.ps.app.orders.domain.OrderId
+import com.ps.app.orders.domain.OrderStatus
 import com.ps.app.orders.domain.Orders
 import com.ps.app.user.adapter.out.persistence.UserEntity
+import com.ps.app.user.adapter.out.persistence.UserMapper
+import java.time.LocalDateTime
+import kotlin.collections.emptyList
+import kotlin.collections.mapNotNull
 
 object OrdersMapper {
-    fun toDomain(entity: OrdersEntity): Orders? {
-        if (entity.orderStatus == null) {
-            println("OrderStatus is null for order ${entity.id}")
-            return null
+
+    /**
+     * Entity -> Domain 변환
+     */
+    fun toDomain(entity: OrdersEntity): Orders {
+        // OrderStatus 검증
+        requireNotNull(entity.orderStatus) {
+            "OrderStatus is null for order ${entity.id}"
         }
 
+        // User 정보 변환
+        val user = entity.user?.let { userEntity ->
+            UserMapper.toDomain(userEntity)
+        }
+
+        // OrderDetail 변환 - 실패한 항목은 로깅하고 건너뜀
+        val orderDetails = entity.details?.mapNotNull { detailEntity ->
+            runCatching {
+                OrderDetailMapper.toDomain(detailEntity)
+            }.onFailure { error ->
+                println("Failed to map OrderDetail ${detailEntity.id}: ${error.message}")
+            }.getOrNull()
+        } ?: emptyList()
+
         return Orders(
-            id = entity.id,
+            id = OrderId(entity.id),
             orderStr = entity.orderStr,
             price = entity.price,
             request = entity.request,
@@ -20,7 +45,7 @@ object OrdersMapper {
             zipcode = entity.zipcode,
             desiredDeliveryDate = entity.desiredDeliveryDate,
             receiver = entity.receiver,
-            userId = entity.user?.id,
+            userId = user,
             sender = entity.sender,
             senderContactNumber = entity.senderContactNumber,
             receiverContactNumber = entity.receiverContactNumber,
@@ -30,16 +55,22 @@ object OrdersMapper {
             deductedPoints = entity.deductedPoints,
             earnedPoints = entity.earnedPoints,
             deductedCouponPrice = entity.deductedCouponPrice,
-            orderStatus = OrderStatusMapper.toDomain(entity.orderStatus),
-            details = entity.details?.mapNotNull {
-                runCatching { OrderDetailMapper.toDomain(it) }.getOrNull()
-            } ?: emptyList()
+            orderStatus = OrderStatus.valueOf(entity.orderStatus.name),
+            orderDetails = orderDetails,
+            createAt = LocalDateTime.now(),
+            updateAt = LocalDateTime.now()
         )
     }
 
-    fun toEntity(domain: Orders, userEntity: UserEntity?, orderStatusEntity: OrderStatusEntity): OrdersEntity {
+    /**
+     * Domain -> Entity 변환
+     */
+    fun toEntity(
+        domain: Orders,
+        userEntity: UserEntity?
+    ): OrdersEntity {
         return OrdersEntity(
-            id = domain.id,
+            id = domain.id.value,
             orderStr = domain.orderStr,
             price = domain.price,
             request = domain.request,
@@ -58,7 +89,29 @@ object OrdersMapper {
             deductedPoints = domain.deductedPoints,
             earnedPoints = domain.earnedPoints,
             deductedCouponPrice = domain.deductedCouponPrice,
-            orderStatus = orderStatusEntity
+            orderStatus = domain.orderStatus,
+            createAt = domain.createAt,
+            updateAt = domain.updateAt
         )
+    }
+
+    /**
+     * 여러 Entity를 Domain으로 변환 (실패한 항목 제외)
+     */
+    fun toDomainList(entities: List<OrdersEntity>): List<Order> {
+        return entities.mapNotNull { entity ->
+            runCatching {
+                toDomain(entity)
+            }.onFailure { error ->
+                println("Failed to map Order ${entity.id}: ${error.message}")
+            }.getOrNull()
+        }
+    }
+
+    /**
+     * 여러 Entity를 Domain으로 변환 (실패 시 예외 발생)
+     */
+    fun toDomainListStrict(entities: List<OrdersEntity>): List<Order> {
+        return entities.map { toDomain(it) }
     }
 }

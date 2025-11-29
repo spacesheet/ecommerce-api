@@ -1,5 +1,7 @@
 package com.ps.app.orders.domain
 
+import com.ps.app.orders.adapter.out.persistence.OrdersEntity
+import com.ps.app.products.adapter.out.persistence.ProductEntity
 import com.ps.app.products.domain.Product
 import com.ps.app.user.domain.UserId
 import java.time.LocalDateTime
@@ -9,12 +11,12 @@ data class OrderDetail(
     val price: Int,
     val quantity: Int,
     val wrap: Boolean,
-    val status: OrderStatus,  // Enum 직접 사용
+    val orderStatus: OrderStatus,  // Enum 직접 사용
     val wrapping: Wrapping?,
-    val product: Product,
-    val order: Orders,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    val product: ProductEntity,
+    val order: OrdersEntity,
+    val createAt: LocalDateTime,
+    val updateAt: LocalDateTime,
 ) {
     companion object {
         fun create(
@@ -34,23 +36,23 @@ data class OrderDetail(
                 price = price,
                 quantity = quantity,
                 wrap = wrap,
-                status = OrderStatus.PENDING,
+                orderStatus = OrderStatus.PENDING,
                 wrapping = wrapping,
                 product = product,
                 order = order,
-                createdAt = now,
-                updatedAt = now
+                createAt = now,
+                updateAt = now
             )
         }
     }
 
     fun changeStatus(newStatus: OrderStatus): OrderDetail {
-        require(status.canTransitionTo(newStatus)) {
-            "${status.displayName}에서 ${newStatus.displayName}(으)로 변경할 수 없습니다"
+        require(orderStatus.canTransitionTo(newStatus)) {
+            "${orderStatus.displayName}에서 ${newStatus.displayName}(으)로 변경할 수 없습니다"
         }
         return copy(
-            status = newStatus,
-            updatedAt = LocalDateTime.now()
+            orderStatus = newStatus,
+            updateAt = LocalDateTime.now()
         )
     }
 
@@ -63,13 +65,18 @@ data class OrderDetail(
     fun refund(): OrderDetail = changeStatus(OrderStatus.REFUNDED)
     fun returnOrder(): OrderDetail = changeStatus(OrderStatus.RETURNED)
 
-    fun canModify(): Boolean = status.isModifiable()
-    fun canCancel(): Boolean = status.isCancellable()
-    fun canReturn(): Boolean = status.isReturnable()
-    fun canReview(): Boolean = status == OrderStatus.DELIVERED
+    fun canModify(): Boolean = orderStatus.isModifiable()
+    fun canCancel(): Boolean = orderStatus.isCancellable()
+    fun canReturn(): Boolean = orderStatus.isReturnable()
+    fun canReview(): Boolean = orderStatus == OrderStatus.DELIVERED
 
-    fun belongsToUser(userId: UserId): Boolean = order.userId == userId
-    fun belongsToUser(userId: Long): Boolean = order.userId.value == userId
+    fun belongsToUser(userId: UserId): Boolean {
+        return order.user?.id == userId
+    }
+
+    fun belongsToUser(userId: Long): Boolean {
+        return order.user?.id?.value == userId
+    }
 
     fun getTotalPrice(): Int {
         val wrappingPrice = if (wrap && wrapping != null) wrapping.price else 0

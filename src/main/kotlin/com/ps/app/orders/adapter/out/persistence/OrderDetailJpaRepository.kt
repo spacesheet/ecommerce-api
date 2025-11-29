@@ -1,8 +1,11 @@
 package com.ps.app.orders.adapter.out.persistence
 
+import com.ps.app.infrastructure.persistence.entity.OrderDetailEntity
+import com.ps.app.orders.domain.OrderDetailId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.util.Optional
 
 interface OrderDetailJpaRepository : JpaRepository<OrderDetailEntity, Long> {
 
@@ -167,4 +170,5 @@ interface OrderDetailJpaRepository : JpaRepository<OrderDetailEntity, Long> {
         ORDER BY od.updateAt DESC
     """)
     fun findReturnableByUserId(@Param("userId") userId: Long): List<OrderDetailEntity>
+    fun findById(id: OrderDetailId?): Optional<OrderDetailEntity>
 }

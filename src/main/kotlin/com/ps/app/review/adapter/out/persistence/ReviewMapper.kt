@@ -14,7 +14,7 @@ object ReviewMapper {
             content = entity.content,
             picturePath = entity.picturePath,
             reviewScore = entity.reviewScore,
-            reviewCreatedAt = entity.reviewCreatedAt,
+            reviewCreatedAt = entity.reviewCreateAt,
             orderDetail = OrderDetailMapper.toDomain(entity.orderDetail)
         )
     }
@@ -25,7 +25,7 @@ object ReviewMapper {
             content = domain.content,
             picturePath = domain.picturePath,
             reviewScore = domain.reviewScore,
-            reviewCreatedAt = domain.reviewCreatedAt,
+            reviewCreateAt = domain.reviewCreatedAt,
             orderDetail = orderDetailEntity
         )
     }

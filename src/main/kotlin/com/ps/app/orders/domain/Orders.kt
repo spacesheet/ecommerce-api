@@ -1,9 +1,10 @@
 package com.ps.app.orders.domain
 
+import com.ps.app.user.domain.UserId
 import java.time.LocalDate
 
 data class Orders(
-    val id: Long = 0,
+    val id: OrderId,
     val orderStr: String,
     val price: Int,
     val request: String?,
@@ -12,7 +13,7 @@ data class Orders(
     val zipcode: Int,
     val desiredDeliveryDate: LocalDate,
     val receiver: String,
-    val userId: Long?,
+    val userId: UserId,
     val sender: String,
     val senderContactNumber: String,
     val receiverContactNumber: String,
@@ -41,6 +42,7 @@ data class Orders(
 
     companion object {
         fun create(
+            id: OrderId,
             orderStr: String,
             price: Int,
             address: String,
@@ -52,7 +54,7 @@ data class Orders(
             senderContactNumber: String,
             receiverContactNumber: String,
             orderStatus: OrderStatus,
-            userId: Long? = null,
+            userId: UserId,
             request: String? = null,
             orderEmail: String? = null,
             couponCode: String? = null,
@@ -61,6 +63,7 @@ data class Orders(
             deductedCouponPrice: Int? = null
         ): Orders {
             return Orders(
+                id = id,
                 orderStr = orderStr,
                 price = price,
                 request = request,

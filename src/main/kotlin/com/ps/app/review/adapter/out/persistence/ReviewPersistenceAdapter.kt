@@ -1,0 +1,73 @@
+package com.ps.app.review.adapter.out.persistence
+
+
+@Component
+class ReviewPersistenceAdapter(
+    private val reviewRepository: ReviewJpaRepository,
+    private val orderDetailRepository: OrderDetailJpaRepository
+) : ReviewPort {
+
+    override fun save(review: Review): Review {
+        val entity = if (review.isNew()) {
+            val orderDetailEntity = orderDetailRepository.findById(review.orderDetail.id.value)
+                .orElseThrow { IllegalArgumentException("OrderDetail not found: ${review.orderDetail.id}") }
+
+            ReviewEntityMapper.toEntity(review, orderDetailEntity)
+        } else {
+            val existing = reviewRepository.findById(review.id.value)
+                .orElseThrow { IllegalArgumentException("Review not found: ${review.id}") }
+
+            existing.apply {
+                updateContent(review.content)
+                updateScore(review.reviewScore)
+                updatePicturePath(review.picturePath)
+            }
+        }
+
+        val saved = reviewRepository.save(entity)
+        return ReviewEntityMapper.toDomain(saved)
+    }
+
+    override fun findById(id: ReviewId): Review? {
+        return reviewRepository.findById(id.value)
+            .map { ReviewEntityMapper.toDomain(it) }
+            .orElse(null)
+    }
+
+    override fun findByOrderDetailId(orderDetailId: OrderDetailId): Review? {
+        return reviewRepository.findByOrderDetailId(orderDetailId.value)
+            ?.let { ReviewEntityMapper.toDomain(it) }
+    }
+
+    override fun findByProductId(productId: ProductId): List<Review> {
+        return reviewRepository.findByProductIdWithDetails(productId.value)
+            .map { ReviewEntityMapper.toDomain(it) }
+    }
+
+    override fun findByUserId(userId: UserId): List<Review> {
+        return reviewRepository.findByUserIdWithDetails(userId.value)
+            .map { ReviewEntityMapper.toDomain(it) }
+    }
+
+    override fun existsByOrderDetailId(orderDetailId: OrderDetailId): Boolean {
+        return reviewRepository.existsByOrderDetailId(orderDetailId.value)
+    }
+
+    override fun delete(review: Review) {
+        reviewRepository.deleteById(review.id.value)
+    }
+
+    override fun deleteById(id: ReviewId) {
+        reviewRepository.deleteById(id.value)
+    }
+
+    override fun findByProductIdOrderByCreatedAtDesc(productId: ProductId): List<Review> {
+        return reviewRepository.findByProductIdWithDetails(productId.value)
+            .map { ReviewEntityMapper.toDomain(it) }
+    }
+
+    override fun findPhotoReviewsByProductId(productId: ProductId): List<Review> {
+        return reviewRepository.findPhotoReviewsByProductId(productId.value)
+            .map { ReviewEntityMapper.toDomain(it) }
+    }
+}

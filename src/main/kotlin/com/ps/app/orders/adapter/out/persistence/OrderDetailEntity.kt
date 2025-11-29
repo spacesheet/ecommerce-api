@@ -1,50 +1,81 @@
 package com.ps.app.orders.adapter.out.persistence
 
-
+import com.ps.app.orders.domain.OrderStatus
 import com.ps.app.products.adapter.out.persistence.ProductEntity
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "order_detail")
+@Table(
+    name = "order_detail",
+    indexes = [
+        Index(name = "idx_order_detail_order_id", columnList = "order_id"),
+        Index(name = "idx_order_detail_product_id", columnList = "product_id"),
+        Index(name = "idx_order_detail_status", columnList = "status"),
+        Index(name = "idx_order_detail_created_at", columnList = "created_at")
+    ]
+)
 class OrderDetailEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long = 0,
+    val id: Long = 0,
 
-    @field:NotNull
+    @Column(nullable = false)
     var price: Int,
 
-    @field:NotNull
+    @Column(nullable = false)
     var quantity: Int,
 
-    @field:NotNull
-    @Column(columnDefinition = "TINYINT(1)")
-    var wrap: Boolean,
+    @Column(nullable = false)
+    var wrap: Boolean = false,
 
-    @field:NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_status_id", nullable = false)
-    var orderStatus: OrderStatusEntity,
+    @Column(nullable = false, length = 50)
+    @Enumerated(EnumType.STRING)
+    var orderStatus: OrderStatus,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wrapping_id")
     var wrapping: WrappingEntity? = null,
 
-    @field:NotNull
+    // ⭐ Product 연관관계 추가
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    var product: ProductEntity,
+    val product: ProductEntity,
 
-    @field:NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    var order: OrdersEntity,
+    val order: OrdersEntity,
 
-    @field:NotNull
-    var createAt: LocalDateTime = LocalDateTime.now(),
+    @Column(name = "created_at", nullable = false, updatable = false)
+    val createAt: LocalDateTime = LocalDateTime.now(),
 
-    @field:NotNull
+    @Column(name = "updated_at", nullable = false)
     var updateAt: LocalDateTime = LocalDateTime.now()
-)
+) {
+    @PreUpdate
+    fun preUpdate() {
+        updateAt = LocalDateTime.now()
+    }
+
+    fun updatePrice(newPrice: Int) {
+        this.price = newPrice
+    }
+
+    fun updateQuantity(newQuantity: Int) {
+        this.quantity = newQuantity
+    }
+
+    fun updateStatus(newStatus: OrderStatus) {
+        this.orderStatus = newStatus
+    }
+
+    fun updateWrapping(newWrap: Boolean, newWrapping: WrappingEntity?) {
+        this.wrap = newWrap
+        this.wrapping = newWrapping
+    }
+
+    fun getTotalPrice(): Int {
+        val wrappingPrice = if (wrap && wrapping != null) wrapping!!.price else 0
+        return (price * quantity) + wrappingPrice
+    }
+}

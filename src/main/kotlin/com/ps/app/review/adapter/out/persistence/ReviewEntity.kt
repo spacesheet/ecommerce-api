@@ -1,6 +1,6 @@
 package com.ps.app.review.adapter.out.persistence
 
-
+import com.ps.app.orders.adapter.out.persistence.OrderDetailEntity
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -29,6 +29,7 @@ class ReviewEntity(
     @Column(nullable = false)
     val reviewCreatedAt: LocalDateTime = LocalDateTime.now(),
 
+    // ⭐ OrderDetail 연관관계 - 이 필드가 있어야 함
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_detail_id", unique = true, nullable = false)
     val orderDetail: OrderDetailEntity

@@ -1,7 +1,9 @@
 package com.ps.app.orders.domain
 
 import com.ps.app.orders.adapter.out.persistence.OrdersEntity
+import com.ps.app.products.adapter.out.persistence.CategoryMapper
 import com.ps.app.products.adapter.out.persistence.ProductEntity
+import com.ps.app.products.adapter.out.persistence.ProductMapper
 import com.ps.app.products.domain.Product
 import com.ps.app.user.domain.UserId
 import java.time.LocalDateTime
@@ -11,7 +13,7 @@ data class OrderDetail(
     val price: Int,
     val quantity: Int,
     val wrap: Boolean,
-    val orderStatus: OrderStatus,  // Enum 직접 사용
+    val orderStatus: OrderStatus,
     val wrapping: Wrapping?,
     val product: ProductEntity,
     val order: OrdersEntity,
@@ -38,7 +40,15 @@ data class OrderDetail(
                 wrap = wrap,
                 orderStatus = OrderStatus.PENDING,
                 wrapping = wrapping,
-                product = product,
+                product = ProductMapper.toEntity(product, CategoryMapper
+                    .toEntity(
+                        product.category,
+                        parentEntity = CategoryMapper
+                            .toEntity(
+                                product.category.parentCategory,
+                                parentEntity = TODO()
+                            )
+                    )),
                 order = order,
                 createAt = now,
                 updateAt = now
@@ -81,5 +91,9 @@ data class OrderDetail(
     fun getTotalPrice(): Int {
         val wrappingPrice = if (wrap && wrapping != null) wrapping.price else 0
         return (price * quantity) + wrappingPrice
+    }
+
+    fun isDelivered(): Boolean {
+        return orderStatus.isDelivered()
     }
 }

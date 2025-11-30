@@ -44,6 +44,9 @@ enum class OrderStatus(
         }
     }
 
+    // 배송 완료 여부
+    fun isDelivered(): Boolean = this in setOf(SHIPPED, DELIVERED)
+
     // 수정 가능 여부
     fun isModifiable(): Boolean = this in setOf(PENDING)
 

@@ -1,13 +1,29 @@
 package com.ps.app.coupons.adapter.out.persistence
 
-import com.ps.app.coupons.adapter.out.persistence.CouponPolicyEntity
 import com.ps.app.coupons.domain.constant.DiscountType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 
-interface CouponPolicyJpaRepository : JpaRepository<CouponPolicyEntity, Int> {
+interface CouponPolicyJpaRepository : JpaRepository<CouponPolicyEntity, Long> {
+
+    fun findByDeletedFalse(): List<CouponPolicyEntity>
+
+    @Query("""
+        SELECT c FROM CouponPolicyEntity c 
+        WHERE c.deleted = false 
+        AND c.condition.startDate <= :now 
+        AND c.condition.endDate >= :now
+    """)
+    fun findActivePolicies(now: LocalDate = LocalDate.now()): List<CouponPolicyEntity>
+
+    @Query("""
+        SELECT c FROM CouponPolicyEntity c 
+        WHERE c.deleted = false 
+        AND c.couponType = :couponType
+    """)
+    fun findByCouponType(couponType: com.ps.app.coupons.domain.CouponType): List<CouponPolicyEntity>
 
     // 활성 쿠폰 정책 조회
     @Query("""

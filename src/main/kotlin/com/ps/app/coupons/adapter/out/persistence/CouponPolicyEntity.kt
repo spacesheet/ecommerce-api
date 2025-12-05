@@ -1,72 +1,61 @@
-package com.ps.app.coupons.adapter.out.persistence
+package com.ps.app.coupons.infrastructure.entity
 
+import com.ps.app.coupons.adapter.out.persistence.CouponTypeConverter
+import com.ps.app.coupons.domain.CouponType
 import com.ps.app.coupons.domain.constant.DiscountType
 import jakarta.persistence.*
-import java.time.LocalDate
+import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.LastModifiedDate
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.LocalDateTime
 
 @Entity
-@Table(
-    name = "coupon_policy",
-    indexes = [
-        Index(name = "idx_coupon_policy_type_id", columnList = "coupon_type_id"),
-        Index(name = "idx_coupon_policy_dates", columnList = "start_date, end_date"),
-        Index(name = "idx_coupon_policy_deleted", columnList = "deleted")
-    ]
-)
-class CouponPolicyEntity(
+@Table(name = "coupon_policy")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "discount_type", discriminatorType = DiscriminatorType.STRING)
+@EntityListeners(AuditingEntityListener::class)
+abstract class CouponPolicyEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int = 0,
+    @Column(name = "id")
+    open val id: Int? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_type_id", nullable = false)
-    val couponType: CouponTypeEntity,
-
-    @Column(nullable = false, length = 30)
-    val name: String,
-
-    @Column(name = "discount_type", nullable = false, length = 20)
+    @Column(name = "coupon_type", nullable = false, length = 50)
+    @Convert(converter = CouponTypeConverter::class)
     @Enumerated(EnumType.STRING)
-    val discountType: DiscountType,
+    open val couponType: CouponType,
 
-    @Column(name = "discount_rate", nullable = false)
-    val discountRate: Double,
+    @Column(name = "name", nullable = false, length = 30)
+    open val name: String,
 
-    @Column(name = "discount_amount", nullable = false)
-    val discountAmount: Int,
+    @OneToMany(
+        mappedBy = "couponPolicy",
+        cascade = [CascadeType.ALL],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    open val conditions: MutableList<CouponConditionEntity> = mutableListOf(),
 
-    @Column(nullable = false)
-    val period: Int,
+    @Column(name = "deleted", nullable = false)
+    open val deleted: Boolean = false,
 
-    @Column(name = "standard_price", nullable = false)
-    val standardPrice: Int,
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    open val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    @Column(name = "max_discount_amount", nullable = false)
-    val maxDiscountAmount: Int,
-
-    @Column(name = "start_date", nullable = false)
-    val startDate: LocalDate,
-
-    @Column(name = "end_date", nullable = false)
-    var endDate: LocalDate,
-
-    @Column(nullable = false)
-    var deleted: Boolean = false,
-
-    @Column(nullable = false)
-    var isActive: Boolean = true
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    open val updatedAt: LocalDateTime = LocalDateTime.now()
 ) {
-    fun changeEndDate(newEndDate: LocalDate) {
-        require(newEndDate >= startDate) { "End date must be after or equal to start date" }
-        this.endDate = newEndDate
+    @get:Column(name = "discount_type", insertable = false, updatable = false)
+    @get:Enumerated(EnumType.STRING)
+    abstract val discountType: DiscountType
+
+    fun addCondition(condition: CouponConditionEntity) {
+        conditions.add(condition)
     }
 
-    fun delete() {
-        this.deleted = true
-    }
-
-    fun isActive(): Boolean {
-        val now = LocalDate.now()
-        return !deleted && now >= startDate && now <= endDate
+    fun clearConditions() {
+        conditions.clear()
     }
 }

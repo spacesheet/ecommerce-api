@@ -3,81 +3,64 @@ package com.ps.app.coupons.domain
 import com.ps.app.coupons.domain.constant.DiscountType
 import java.time.LocalDate
 
-data class CouponPolicy(
+abstract class CouponPolicy(
     val id: CouponPolicyId = CouponPolicyId.NEW,
     val couponType: CouponType,
     val name: String,
-    val discountType: DiscountType,
-    val discountRate: Double,
-    val discountAmount: Int,
-    val period: Int,
-    val standardPrice: Int,
-    val maxDiscountAmount: Int,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
+    vararg conditions: CouponCondition,
     val deleted: Boolean = false
 ) {
+    val conditions: List<CouponCondition> = conditions.toList()
+
     init {
         require(name.isNotBlank()) { "Coupon policy name cannot be blank" }
         require(name.length <= 30) { "Coupon policy name must be 30 characters or less" }
-        require(discountRate >= 0) { "Discount rate cannot be negative" }
-        require(discountAmount >= 0) { "Discount amount cannot be negative" }
-        require(period > 0) { "Period must be positive" }
-        require(standardPrice >= 0) { "Standard price cannot be negative" }
-        require(maxDiscountAmount >= 0) { "Max discount amount cannot be negative" }
-        require(endDate >= startDate) { "End date must be after or equal to start date" }
-
-        when (discountType) {
-            DiscountType.PERCENTAGE -> {
-                require(discountRate > 0) { "Discount rate must be positive for PERCENTAGE type" }
-                require(discountRate <= 100) { "Discount rate cannot exceed 100%" }
-            }
-            DiscountType.FIXED_AMOUNT -> {
-                require(discountAmount > 0) { "Discount amount must be positive for FIXED_AMOUNT type" }
-            }
-        }
+        require(this.conditions.isNotEmpty()) { "At least one condition is required" }
     }
+
+    abstract val discountType: DiscountType
+
+    abstract fun calculateDiscountAmount(originalPrice: Int): Int
 
     fun isNew(): Boolean = id.isNew()
 
     fun changeEndDate(newEndDate: LocalDate): CouponPolicy {
-        require(newEndDate >= startDate) { "End date must be after or equal to start date" }
         require(!deleted) { "Cannot modify deleted policy" }
-        return copy(endDate = newEndDate)
+        val newConditions = conditions.map { it.changeEndDate(newEndDate) }
+        return createWithNewConditions(newConditions)
     }
+
+    abstract fun createWithNewConditions(newConditions: List<CouponCondition>): CouponPolicy
+
+    abstract fun markAsDeleted(): CouponPolicy
 
     fun delete(): CouponPolicy {
         require(!deleted) { "Policy is already deleted" }
-        return copy(deleted = true)
+        return markAsDeleted()
     }
 
     fun isActive(): Boolean {
-        val now = LocalDate.now()
-        return !deleted && now >= startDate && now <= endDate
+        return !deleted && conditions.any { it.isActive() }
     }
 
     fun isExpired(): Boolean {
-        return LocalDate.now().isAfter(endDate)
+        return conditions.all { it.isExpired() }
+    }
+
+    fun getActiveConditions(): List<CouponCondition> {
+        return conditions.filter { it.isActive() }
     }
 
     fun calculateDiscount(originalPrice: Int): Int {
         require(originalPrice >= 0) { "Original price cannot be negative" }
         require(!deleted) { "Cannot use deleted policy" }
         require(isActive()) { "Cannot use inactive policy" }
-        require(originalPrice >= standardPrice) {
-            "Original price must be at least $standardPrice to apply this coupon"
-        }
 
-        val calculatedDiscount = when (discountType) {
-            DiscountType.PERCENTAGE -> {
-                (originalPrice * discountRate / 100).toInt()
-            }
-            DiscountType.FIXED_AMOUNT -> {
-                discountAmount
-            }
-        }
+        val applicableCondition = findApplicableCondition(originalPrice)
+            ?: throw IllegalStateException("No applicable condition found for price: $originalPrice")
 
-        return minOf(calculatedDiscount, maxDiscountAmount)
+        val calculatedDiscount = calculateDiscountAmount(originalPrice)
+        return minOf(calculatedDiscount, applicableCondition.maxDiscountAmount)
     }
 
     fun calculateFinalPrice(originalPrice: Int): Int {
@@ -85,42 +68,19 @@ data class CouponPolicy(
         return maxOf(0, originalPrice - discount)
     }
 
-    fun isPercentageDiscount(): Boolean = discountType == DiscountType.PERCENTAGE
-
-    fun isFixedAmountDiscount(): Boolean = discountType == DiscountType.FIXED_AMOUNT
-
     fun canApplyTo(orderAmount: Int): Boolean {
-        return isActive() && orderAmount >= standardPrice
+        return isActive() && conditions.any { it.canApplyTo(orderAmount) }
     }
 
-    companion object {
-        fun create(
-            couponType: CouponType,
-            name: String,
-            discountType: DiscountType,
-            discountRate: Double = 0.0,
-            discountAmount: Int = 0,
-            period: Int,
-            standardPrice: Int,
-            maxDiscountAmount: Int,
-            startDate: LocalDate,
-            endDate: LocalDate
-        ): CouponPolicy {
-            return CouponPolicy(
-                id = CouponPolicyId.NEW,
-                couponType = couponType,
-                name = name,
-                discountType = discountType,
-                discountRate = discountRate,
-                discountAmount = discountAmount,
-                period = period,
-                standardPrice = standardPrice,
-                maxDiscountAmount = maxDiscountAmount,
-                startDate = startDate,
-                endDate = endDate,
-                deleted = false
-            )
-        }
+    fun findApplicableCondition(orderAmount: Int): CouponCondition? {
+        return getActiveConditions()
+            .filter { it.canApplyTo(orderAmount) }
+            .maxByOrNull { it.standardPrice } // 가장 조건이 높은 것을 선택
     }
+
+    fun getAllPeriods(): List<Int> = conditions.map { it.period }.distinct()
+
+    fun getMaxDiscountAmount(): Int = conditions.maxOfOrNull { it.maxDiscountAmount } ?: 0
+
+    fun getMinStandardPrice(): Int = conditions.minOfOrNull { it.standardPrice } ?: 0
 }
-

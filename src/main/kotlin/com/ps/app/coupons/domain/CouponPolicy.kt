@@ -15,7 +15,10 @@ abstract class CouponPolicy(
     init {
         require(name.isNotBlank()) { "Coupon policy name cannot be blank" }
         require(name.length <= 30) { "Coupon policy name must be 30 characters or less" }
-        require(this.conditions.isNotEmpty()) { "At least one condition is required" }
+        // NoneCouponPolicy를 위해 조건 완화
+        if (this !is NoneCouponPolicy) {
+            require(this.conditions.isNotEmpty()) { "At least one condition is required" }
+        }
     }
 
     abstract val discountType: DiscountType
@@ -39,7 +42,7 @@ abstract class CouponPolicy(
         return markAsDeleted()
     }
 
-    fun isActive(): Boolean {
+    open fun isActive(): Boolean {
         return !deleted && conditions.any { it.isActive() }
     }
 
@@ -51,7 +54,7 @@ abstract class CouponPolicy(
         return conditions.filter { it.isActive() }
     }
 
-    fun calculateDiscount(originalPrice: Int): Int {
+    open fun calculateDiscount(originalPrice: Int): Int {
         require(originalPrice >= 0) { "Original price cannot be negative" }
         require(!deleted) { "Cannot use deleted policy" }
         require(isActive()) { "Cannot use inactive policy" }
@@ -63,12 +66,12 @@ abstract class CouponPolicy(
         return minOf(calculatedDiscount, applicableCondition.maxDiscountAmount)
     }
 
-    fun calculateFinalPrice(originalPrice: Int): Int {
+    open fun calculateFinalPrice(originalPrice: Int): Int {
         val discount = calculateDiscount(originalPrice)
         return maxOf(0, originalPrice - discount)
     }
 
-    fun canApplyTo(orderAmount: Int): Boolean {
+    open fun canApplyTo(orderAmount: Int): Boolean {
         return isActive() && conditions.any { it.canApplyTo(orderAmount) }
     }
 
@@ -84,3 +87,8 @@ abstract class CouponPolicy(
 
     fun getMinStandardPrice(): Int = conditions.minOfOrNull { it.standardPrice } ?: 0
 }
+
+// 확장 함수로 분리
+fun CouponPolicy.isNone(): Boolean = this is NoneCouponPolicy
+
+fun CouponPolicy.isSome(): Boolean = !isNone()
